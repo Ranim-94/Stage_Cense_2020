@@ -17,9 +17,7 @@ repository.
 
 This commit means to the unwanted .wav files found in the directory
 
-python/data/test/sound. The text file "unwanted_wav_files" contains all the .wav files that need to be eliminated from the test data set so 
-
-the "PresPredDataset" class in "main.py" can generate the test set (named eval).
+python/data/test/sound. The text file "unwanted_wav_files" contains all the .wav files that need to be eliminated from python/data/test/sound so the "PresPredDataset" class in "main.py" can generate the test set (named eval).
 
 ---------------------------------------------------------------
 
