@@ -36,6 +36,12 @@ To be done in the next phase.
 
 ---------------------------------------------------------------
 
+2) adding_header_none_code:
+------------------------------
+
+Need to add header = None in case the csv file
+don't have header.
+
 
 
 
