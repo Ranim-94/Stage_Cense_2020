@@ -8,16 +8,31 @@ repository.
 
 - Sorted (in time) from oldest to newest.
 
+- Note: any commit relative to the code, it will be denoted by
+	'commit name'_code.
+
+
 
 	*************** Commits Description **************
 
 
-1) List of unwanted .wav files:
+1) creating_sample_code:
 --------------------------------
 
-This commit means to the unwanted .wav files found in the directory
+Till this point, I managed to create 1 sample from the csv files
 
-python/data/test/sound. The text file "unwanted_wav_files" contains all the .wav files that need to be eliminated from python/data/test/sound so the "PresPredDataset" class in "main.py" can generate the test set (named eval).
+of SpecCence data.
+
+The sample is of the form: 29 x width , where width is the number of
+
+lines in the csv files, then reshape this sample to a column vector
+
+	- (29 x width),1
+	- recall that each line represenets a widnow of 125 ms
+
+I didn't check yet the gaps in time between each window.
+
+To be done in the next phase.
 
 ---------------------------------------------------------------
 
