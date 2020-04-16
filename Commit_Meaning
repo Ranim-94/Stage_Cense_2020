@@ -42,6 +42,13 @@ To be done in the next phase.
 Need to add header = None in case the csv file
 don't have header.
 
+3) data_per_csv_file_code:
+-----------------------------
+
+	- The construction of the data per csv file / per hour 
+		is done
+	- the dataloader also work
+
 
 
 
