@@ -55,10 +55,13 @@ path_dictionary ['day_option'] + '/' + path_dictionary['hour_option'] + '.zip'
 '''
  Read the csv file using pandas data frame and directly convert to
  numpy array
+     
+     - header = None in pd.read_csv:
+         pandas will use auto generated integer values as header
 
 '''
 
-sensor_numpy = pd.read_csv(path_2).to_numpy()
+sensor_numpy = pd.read_csv(path_2, header = None).to_numpy()
 
 '''
 print the type and shape to be sure 
