@@ -21,39 +21,19 @@ class SpecCense_Dataset(torch.utils.data.Dataset):
     
     '''
 
-    def __init__(self,original_numpy_data,width):
+    def __init__(self,original_numpy_data,width,iteration_per_csv_file):
         # Initialize data, download, etc.
         # read with numpy or pandas
         
- 
-      
+        self.n_samples = iteration_per_csv_file
         
-
+        self.x_data = creating_sample(original_numpy_data,width,iteration_per_csv_file)
         
-        self.x_data = creating_sample(original_numpy_data,width)
-        
-        
-        
-        '''
-        -At a first step we matrix of shape 29 x width
-            - where width is an argument to be specified
-        
-        - the 3 index in [[:self.width, 3:]] 
-        is where the octave bands starts in the csv file
-            - we have 29 octave bands we are working on
-                that's why the shape will be 29 x width
-                
-            - I have reshaped this sample to a column vector
-                - shape: (29 x width) , 1
-        '''
-        
- 
-
 
     # support indexing such that dataset[i] can be used to get i-th sample
     def __getitem__(self, index):
         
-        return self.x_data[index]
+        return self.x_data[:,index]
 
     # we can call len(dataset) to return the size
     def __len__(self):
