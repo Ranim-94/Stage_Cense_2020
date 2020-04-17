@@ -1,0 +1,66 @@
+
+
+			% Packages Files
+%----------------------------------%
+
+%	% Page Setttings
+%\usepackage[top = 1in, bottom = 1in, left = 1in, right = 1in]{geometry}
+%
+%\parindent=0cm % to prevent the spacing in new paragraph or new line
+%
+%\usepackage{fancyhdr} % needded for header and footer 
+
+%-----------------------------------------------------------------%
+
+\usepackage{amsmath} % needed for referencing thequation
+\usepackage{amsfonts} % for maths symbols
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{caption}
+\usepackage{refstyle} % to reference a captioned figure
+
+
+% To make hyperlinks
+
+\usepackage[
+	colorlinks=true
+	,breaklinks
+	]{hyperref} % needed for creating hyperlinks in the document, the option colorlinks=true gets rid of the awful boxes, breaklinks breaks lonkg links (list of figures),
+	
+\usepackage{xcolor}
+\definecolor{c1}{rgb}{0,0,1} % blue
+\definecolor{c2}{rgb}{0,0.3,0.9} % light blue
+\definecolor{c3}{rgb}{0.3,0,0.9} % red blue
+\hypersetup{
+    linkcolor={c1}, % internal links
+    citecolor={c2}, % citations
+    urlcolor={c3} % external links/urls
+}
+
+	% For Code Writing
+	
+\usepackage{listings}
+
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0 0.6 0}
+
+\lstset{
+% Set automatic Line breaking, in case we have long lines don't
+% fit inside the frame or the page.
+breaklines = true,
+commentstyle = \color{mygreen},
+breakatwhitespace = true,% don't show white space character
+%numbers = left, % put line number in the code
+title = \lstname
+}
+
+% ------------- For Writing Equations inisde a table and centering them ------------
+
+\usepackage{array}
+
+% Vertical Alignment inside the cells of the table
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
+% Horizontal Alignment inside the cells of the table
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}

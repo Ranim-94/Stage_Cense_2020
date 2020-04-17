@@ -1,0 +1,25 @@
+
+
+% Macros File
+
+% Macros Example
+\def\labelaxes{Remember to include some suitable labeling for the axes and the units used in measurements.}
+
+% 2nd way for defnining macros: the new command
+% 1st parameter: name of the new command
+% 2nd paramter: how many inputs this command needs, in this case only 1
+% 3rd parameter: what this new command named \tbi do
+
+\newcommand{\tbi}[1]{\textbf{\textit{#1}}}
+
+% Command for Picture without a label
+
+\newcommand{\pic}[3]{\begin{figure}[h]
+\centering
+\includegraphics[width = 0.7\textwidth, frame]{#1}
+\caption{#2}
+\end{figure}}
+
+
+
+
