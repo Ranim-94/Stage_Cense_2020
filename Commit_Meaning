@@ -51,6 +51,21 @@ don't have header.
 
 
 
+4) saving_data_npy:
+--------------------
+
+In this step, I have created a function which takes the csv file (1 hour duration),
+check for the time continuity of the frames, and save these data frame in npy format
+(numpy data type).
+
+
+
+
+
+
+
+
+
 
 
 
