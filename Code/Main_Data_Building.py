@@ -10,14 +10,8 @@ import torch
 
 import math
 
-from Classes_and_Functions.Class_SpecCense_Dataset import \
-SpecCense_Dataset 
-
-
-
-
-
-
+from Classes_and_Functions.Helper_Functions import \
+creating_sample
 
 '''
 Constructing a dictionary of the data path
@@ -46,7 +40,7 @@ path_dictionary = {
 
 
 
-path_2 = 'Data_Set/' + path_dictionary['sensor_name'][path_dictionary ['sensor_index']] + '/' + \
+path = 'Data_Set/' + path_dictionary['sensor_name'][path_dictionary ['sensor_index']] + '/' + \
 path_dictionary['year'] + '/' + path_dictionary['month_option'] + '/' + \
 path_dictionary ['day_option'] + '/' + path_dictionary['hour_option'] + '.zip'
 
@@ -62,7 +56,7 @@ path_dictionary ['day_option'] + '/' + path_dictionary['hour_option'] + '.zip'
              the first row as header and skip it while reading
 
 '''
-sensor_numpy = pd.read_csv(path_2, header = None).to_numpy()
+sensor_numpy = pd.read_csv(path, header = None).to_numpy()
 
 
 
@@ -79,59 +73,33 @@ nb_window_frame_per_csv_file,_ = sensor_numpy.shape
 #width = int(math.pow(10,3)) 
 
 
-width = 1000
+width = int(math.pow(10,4))
+
+'''
+Casting into int because I use width as index in slicing
+'''
+
+margin = 250
 
 iteration_per_csv_file = math.floor(nb_window_frame_per_csv_file/width)
-
-
 
 
 '''
 math.floor: will round down to the nearest integer
  
- 
 '''
 
 
+saved_path = '/home/ranim/1_Intership_2020/Code/Created_Dataset'
 
-# Creating the instance
-data_instance = SpecCense_Dataset(sensor_numpy, width,iteration_per_csv_file )
-
-# Testing the attribute 
-
-
-print('- x_data type:',type(data_instance.x_data),'\n')
-
-print('- data_instance shape:',data_instance.x_data.shape,'\n')
-
-
-# testing getitem
-first_sample = data_instance[0]
-
-print('- first_sample shape is:',first_sample.shape,'\n')
-
-
-
-# testing len
-print('- Number of training examples is:',len(data_instance),'\n')
-
-
-
-# testing dataloader 
-
-batch = 4
-
-# this will give us an iterable object
-train_loader = torch.utils.data.DataLoader(dataset = data_instance, 
-                          batch_size = batch,
-                          shuffle = True)
-
-
-for counter_loop , batch in enumerate(train_loader):
-         
+creating_sample(sensor_numpy,width,iteration_per_csv_file,margin,saved_path)
     
-    print('* Sample number #',counter_loop,': \n \n',
-          '- features shape:',batch.shape)
+
+
+
+
+
+
 
 
 

@@ -3,11 +3,13 @@
 
 
 
-import torch
 
 import numpy as np
 
-def creating_sample(original_numpy_data,width,iteration_per_csv_file):
+import os
+
+def creating_sample(original_numpy_data,width,iteration_per_csv_file,margin
+,saved_path):
     
     start = 0
     
@@ -20,25 +22,60 @@ def creating_sample(original_numpy_data,width,iteration_per_csv_file):
             [0:100] will be from 0 -->99 which are 100 frames
     
     '''
-    
-   
-    
-    shape = (29 * width,iteration_per_csv_file)    
-    
-    tensor_matrix_sample = torch.from_numpy(np.empty(shape))
-    
-    
 
     
     for index in range(iteration_per_csv_file):
         
-        tensor_matrix_sample[:,index] = \
-        torch.from_numpy(original_numpy_data[start:end, 3:].T).reshape(-1,1).squeeze()
         
         '''
-        .squeeze() will eliminate all axis except the last one
+        taking the unix tim stamp column
+        '''
+        
+        unix_time_stamp_measured = original_numpy_data[start:end,0].copy()
         
         '''
+        Computing the difference 
+        '''
+        diff = np.diff(unix_time_stamp_measured)
+        
+        
+        '''
+        Checking for frame continuity
+        '''
+        
+        
+        test_shape = diff[diff > margin].shape
+
+
+        if test_shape[0] == 0:
+            
+    
+            '''
+            -All the frames are continous
+                -No violation 
+        
+            Here we create the file 
+            '''
+            filename = os.path.join('Created_Dataset','train_spec_')
+            
+            np.save(filename +  str(index), \
+                    original_numpy_data[start:end, 3:].T)
+    
+            print('- Iteration # ',index,
+            'Frames are continous \n')
+    
+        else:
+            
+            '''
+            - There is discontinuity
+                Reject the frame                
+            '''            
+            
+            print('- Iteration #',index,
+            'Theres is discontinuity, slice is rejected \n')    
+            
+            
+    
         
         # updating the offset         
         start = start + width
@@ -59,12 +96,9 @@ def creating_sample(original_numpy_data,width,iteration_per_csv_file):
         is where the octave bands starts in the csv file
             - we have 29 octave bands we are working on
                 that's why the shape will be 29 x width
-                
-            - I have reshaped this sample to a column vector
-                - shape: (29 x width) , 1
     '''
 
-    return tensor_matrix_sample
+
 
 
 
