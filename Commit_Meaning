@@ -59,6 +59,13 @@ check for the time continuity of the frames, and save these data frame in npy fo
 (numpy data type).
 
 
+5) Organizing_to_class:
+--------------------------
+
+
+Transform the helper_function into a class and do a cleaning
+for the main_data_building.
+
 
 
 
