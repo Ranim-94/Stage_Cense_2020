@@ -66,7 +66,17 @@ check for the time continuity of the frames, and save these data frame in npy fo
 Transform the helper_function into a class and do a cleaning
 for the main_data_building.
 
+6) Adding_feature_make_directory:
+----------------------------------
 
+In the class 'Class_Dataset_Construction.py', adding option
+
+of automatically creaing the data set folder and check if it exists
+or not.
+
+Also, fix some bug concerning file_name variable:
+
+putting it before the loop 
 
 
 
