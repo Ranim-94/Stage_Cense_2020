@@ -1,13 +1,9 @@
 
 
 
-
-
 import math
 
-
 from Classes_and_Functions.Class_Dataset_Construction import SpecCense_Construction
-
 
 
 '''
@@ -35,22 +31,17 @@ path_dictionary = {
 }
 
 
-
-
 data_path = 'Data_Set/' + path_dictionary['sensor_name'][path_dictionary ['sensor_index']] + '/' + \
 path_dictionary['year'] + '/' + path_dictionary['month_option'] + '/' + \
 path_dictionary ['day_option'] + '/' + path_dictionary['hour_option'] + '.zip'
 
 
-
-
+  
 width , margin  = int(math.pow(10,4)) , 250
 
 '''
 Casting into int because I use width as index in slicing
 '''
-
-
 
 saving_location_dict = {
     

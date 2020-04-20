@@ -1,13 +1,5 @@
 
 
-
-
-
-
-
-
-
-
 import numpy as np
 
 import os
@@ -34,7 +26,8 @@ class SpecCense_Construction:
 
         '''
         
-        self.__original_numpy_data  = pd.read_csv(data_path,header = None).to_numpy()
+        self.__original_numpy_data  = \
+        pd.read_csv(data_path,header = None).to_numpy()
         
         self.__width = width
         
@@ -67,8 +60,41 @@ class SpecCense_Construction:
             [0:100] will be from 0 -->99 which are 100 frames
     
         '''
-
-    
+        
+        
+        '''
+        Testing if dataset directory exist or not
+        
+        and create it in case of not
+        '''
+        
+        
+        if os.path.isdir(self.__saving_location_dict ['Directory']):
+            
+            print('- Dataset Directory named '+ \
+                  self.__saving_location_dict ['Directory']+ ' exists \n')
+            
+                
+        else:
+            
+            
+            os.makedirs(self.__saving_location_dict ['Directory'])
+            
+            print('- Dataset Directory named '+ \
+                  self.__saving_location_dict ['Directory']+ ' is created\n')
+        
+        
+        # Component in wich where we store the .npy data
+        filename = \
+                os.path.join(self.__saving_location_dict ['Directory'],
+                             self.__saving_location_dict ['File_Name'])
+                
+        '''
+        It will be used in np.save()
+        
+        '''
+                
+        # start slicing through the csv file
         for index in range(self.__iteration_per_csv_file):
         
         
@@ -101,16 +127,11 @@ class SpecCense_Construction:
             
                 Here we create the file 
                 '''
-                filename = os.path.join(self.__saving_location_dict ['Directory'],
-                                        self.__saving_location_dict ['File_Name'])
-                
-                                                             
-                                                             
+                                  
                 np.save(filename +  str(index), \
                         self.__original_numpy_data[start:end, 3:].T)
         
-                print('- Iteration # ',index,
-                'Frames are continous \n')
+                print('- Iteration #',index,': Frames are continous \n')
         
             else:
                 
@@ -120,7 +141,7 @@ class SpecCense_Construction:
                 '''            
                 
                 print('- Iteration #',index,
-                'Theres is discontinuity, slice is rejected \n')    
+                ': Theres is discontinuity, slice is rejected \n')    
                 
                 
         
