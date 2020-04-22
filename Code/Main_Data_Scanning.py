@@ -15,7 +15,7 @@ import itertools
 list containing sensor names
 '''
 list_sensor_name = ['urn:osh:sensor:noisemonitoring:B8-27-EB-EA-EB-EA',
-                  ' urn:osh:sensor:noisemonitoring:B8-27-EB-EA-12-88 ']
+                  'urn:osh:sensor:noisemonitoring:B8-27-EB-EA-12-88']
 
 
 '''
@@ -35,9 +35,9 @@ od2['year'] = [2019]
 
 od2['month'] = [12]
 
-od2['days'] = [v for v in range(1,29)] # 0 --> 28
+od2['days'] = [v for v in range(1,2)] # 1 --> 28
 
-od2['hour'] = [v for v in range(24)] # 0 --> 23
+od2['hour'] = [v for v in range(4)] # 0 --> 23
 
 
 
