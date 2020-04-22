@@ -78,6 +78,32 @@ Also, fix some bug concerning file_name variable:
 
 putting it before the loop 
 
+7) Data_Scannnig_Construction:
+----------------------
+
+The Main_Data_Scannning.py:
+
+This file take the data set directory and check for file existence in all
+sensors directories.
+
+It uses the itertool module so we can escape from nested loop while testing
+for file existence in different sensors direcotries.
+
+It is just a demo to see how itertoo.product work.
+
+Then I have refactor the class 'Class_Dataset_Construction.py' so it takes into account:
+	- the creation of directory/sensor_name/train_spec_id.npy
+		- where sensor_name is also a subdiractory
+	- train_spec_id.npy naming system: train_spec_day_hour_slice
+
+In conclusion, the class 'Class_Dataset_Construction.py' creates proper dataset per sensor, all in one root directory, where its name
+is chosen by the user.
+
+
+
+
+
+
 
 
 
