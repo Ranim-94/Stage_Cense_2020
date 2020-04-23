@@ -13,7 +13,8 @@ import SpecCense_Construction
 list containing sensor names
 '''
 list_sensor_name = ['urn:osh:sensor:noisemonitoring:B8-27-EB-EA-EB-EA',
-                  'urn:osh:sensor:noisemonitoring:B8-27-EB-EA-12-88']
+                  'urn:osh:sensor:noisemonitoring:B8-27-EB-EA-12-88',
+                  'urn:osh:sensor:noisemonitoring:B8-27-EB-22-C0-63']
 
 
 '''
@@ -27,7 +28,7 @@ in which will change during testing file existence
 od2 = collections.OrderedDict()
 
 
-od2['list_sensor_index'] = [0,1]
+od2['list_sensor_index'] = [0,1,2]
 
 od2['year'] = [2019]
 
@@ -48,9 +49,7 @@ Casting into int because I use width as index in slicing
 saving_location_dict = {
     
     'Directory': 'Created_Dataset',
-    
-    'list_sensor_names':list_sensor_name,
-    
+        
     'File_Name':'train_spec_',
     
     'File_Name_time_stamp':'train_time_',
