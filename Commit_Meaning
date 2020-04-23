@@ -117,6 +117,8 @@ Naming convention:
 	- train_time_xx.npy for the time stamp of length (10^4)
 	- train_spec_xx.npy for the spectrograms of length (10^4 x 29)
 
+where xx = SensorIndex_month_day_hour_slice
+
 
 
 
