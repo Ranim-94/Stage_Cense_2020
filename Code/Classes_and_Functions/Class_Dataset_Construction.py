@@ -101,7 +101,8 @@ class SpecCense_Construction:
                     print(' File Exist \n')
                     
                     # Create the .npy files
-                    self.__slicing(data_path,sensor_index,days,hour)
+                    self.__slicing(data_path,sensor_index , month,
+                                   days,hour)
                     
                     
                 else:
@@ -109,7 +110,7 @@ class SpecCense_Construction:
                     print(' No File \n')
                     
                     
-    def __slicing(self,data_path,sensor_index,days,hour):
+    def __slicing(self,data_path,sensor_index,month,days,hour):
         
         '''
          Read the csv file using pandas data frame and directly convert to
@@ -129,18 +130,15 @@ class SpecCense_Construction:
         '''
         math.floor: will round down to the nearest integer
      
-        '''
-        
+        ''' 
     
-        start = 0
-    
-        end = self.__width 
+        start, end  = 0 , self.__width
     
         '''
-        end = width and not width -1 because the slcing in numpy is exclusive
+        end = width and not (width - 1) because the slcing in numpy is exclusive
         
         - so if width = 100 (we want 100 frames)
-            [0:100] will be from 0 -->99 which are 100 frames
+            [0:100] will be from 0 --> 99, which are 100 frames
     
         '''
         
@@ -175,9 +173,8 @@ class SpecCense_Construction:
         sensor_id_vec = np.full(self.__width, sensor_index)
         
         '''
-        np.full create an array filled with sensor_index of length
-        
-        self.__width
+        np.full() create an array filled with values = sensor_index, 
+        of length  = self.__width
         '''
        
                 
@@ -189,7 +186,8 @@ class SpecCense_Construction:
             taking the unix tim stamp column
             '''
             
-            unix_time_stamp_measured = original_numpy_data[start:end,0].copy()
+            unix_time_stamp_measured = \
+            original_numpy_data[start:end,0].copy()
             
             '''
             Computing the difference 
@@ -212,29 +210,35 @@ class SpecCense_Construction:
                 print(' : Frames are continous \n')
         
                 '''
-                -All the frames are continous
+                - All the frames are continous
                     -No time stampe above the margin
             
-                Here we create the .npy files
+                - Here we create the .npy files
                 '''
                 
                  # saving the sensor id
                 
                 np.save(filename_sensor_id + str(sensor_index) + \
-                        '_' + str(days) + '_' + str(hour) + \
+                        '_'+ str(month) + '_' + str(days) + '_' + str(hour) + \
                         '_' + str(index) , sensor_id_vec)
                 
                 # saving the time stamp
                 
                 np.save(filename_time_stamp + str(sensor_index) + \
-                        '_' + str(days) + '_' + str(hour) + \
+                        '_'+ str(month) +'_' + str(days) + '_' + str(hour) + \
                         '_' + str(index) , unix_time_stamp_measured)
                 
                  
                 # saving the ocataves spectrograms                 
-                np.save(filename + str(sensor_index) +  '_' + \
-                        str(days) + '_' + str(hour) + '_' + str(index) , \
+                np.save(filename + str(sensor_index) + \
+                        '_'+ str(month) + str(days) + '_' + \
+                        str(hour) + '_' + str(index) , \
                         original_numpy_data[start:end, 3:])
+                    
+                '''
+                 - the 3 index in [start:end, 3:] 
+                 is where the octave bands starts in the csv file
+                '''
         
                 print('  --> Finish creating .npy files \n')
         
@@ -252,28 +256,21 @@ class SpecCense_Construction:
             # updating the offset         
             start = start + self.__width
             
-            end =  end + self.__width
+            end =  end + self.__width + 1
+            
+            '''
+            When updating the offset,
+            be aware that the end index must be added
+            by (width + 1) becasue the end is exclusive in numpy indexing,
+            
+            otherwise (if we set end = end + width), 
+            we will have number of frames equal to (width - 1)
+            '''
             
             print('  --> Shifting the slice \n')
     
     
-    
-    
-    '''
-    - Description of the function:    
-    
-    -At a first step we matrix of shape 29 x width
-        - where the slicing [start:end] will always
-            be of length = width
-        
-        - the 3 index in [start:end, 3:] 
-        is where the octave bands starts in the csv file
-            - we have 29 octave bands we are working on
-                that's why the shape will be 29 x width
-    '''
-
-
-
+  
 
 
        
