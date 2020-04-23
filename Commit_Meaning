@@ -104,7 +104,10 @@ is chosen by the user.
 ------------------------------------
 
 Instead of creating multiple direcotries for each sensor, I have put the sensor id also in .npy file
-(1 hot encoding for naming)
+
+	sensor id is created using the command np.full(self.__width, sensor_index),
+	where we create a vector of length self.__width, filled with values equal
+	to sensor_index (which is an integer number).
 
 So we have only 1 global directory for the created data set.
 
