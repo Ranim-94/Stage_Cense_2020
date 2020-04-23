@@ -100,6 +100,21 @@ In conclusion, the class 'Class_Dataset_Construction.py' creates proper dataset 
 is chosen by the user.
 
 
+8) Data_Building_small_changes:
+------------------------------------
+
+Instead of creating multiple direcotries for each sensor, I have put the sensor id also in .npy file
+(1 hot encoding for naming)
+
+So we have only 1 global directory for the created data set.
+
+Naming convention:
+
+	- train_id_xx.npy for the sensor index of length (10^4)
+	- train_time_xx.npy for the time stamp of length (10^4)
+	- train_spec_xx.npy for the spectrograms of length (10^4 x 29)
+
+
 
 
 
