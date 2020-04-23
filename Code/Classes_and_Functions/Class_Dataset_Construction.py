@@ -54,16 +54,14 @@ class SpecCense_Construction:
                 
         else:
             
-            
-            for i in \
-            range( len(self.__ordered_dicton_parameters['list_sensor_index']) ):
+            '''
+            Creating directory
+            '''
                 
-                os.makedirs(self.__saving_location_dict['Directory'] +'/' +
-                 self.__saving_location_dict['list_sensor_names'][i])
-                
-                print('- Dataset Directory named '+ \
-                  self.__saving_location_dict ['Directory'] +
-                  '/' + self.__saving_location_dict['list_sensor_names'][i] + \
+            os.makedirs(self.__saving_location_dict['Directory'])
+     
+            print('- Dataset Directory named '+ \
+                  self.__saving_location_dict ['Directory'] + \
                   'is created\n')
             
             
@@ -75,20 +73,23 @@ class SpecCense_Construction:
         # Second Step: Test file existence
         
         hyperparameters_values = [v for v in \
-                                  self.__ordered_dicton_parameters.values()]
+                            self.__ordered_dicton_parameters.values()]
             
             
         for sensor_index, year, month , days , hour in \
             itertools.product(*hyperparameters_values):
                 
-                print('- Working with sensor #:',sensor_index,'|',  
+                print('- Working with sensor #',sensor_index,'|',  
               'year #',year,'|','month #',month,'|','day #',days,'|', 
               'hour #',hour,'| \n')
                 
                 data_path = 'Data_Set/' + \
                 self.__list_sensor_name [sensor_index] + '/' + \
                   str(year) + '/' + str(month) + '/' + \
-                  str(days) + '/' + str(hour) + '.zip' 
+                  str(days) + '/' + str(hour) + '.zip'
+                  
+                  
+                print('  --> Testing file existence:', end = '')
                       
                 if os.path.isfile(data_path) == True:
                     
@@ -97,7 +98,7 @@ class SpecCense_Construction:
                     
                     '''
                     
-                    print('File Exist \n')
+                    print(' File Exist \n')
                     
                     # Create the .npy files
                     self.__slicing(data_path,sensor_index,days,hour)
@@ -105,7 +106,7 @@ class SpecCense_Construction:
                     
                 else:
                     
-                    print('No File \n')
+                    print(' No File \n')
                     
                     
     def __slicing(self,data_path,sensor_index,days,hour):
@@ -153,11 +154,32 @@ class SpecCense_Construction:
         It will be used in np.save()
         '''
         
+        # For octave spectrograms
         filename = \
                 os.path.join(self.__saving_location_dict ['Directory'],
-               self.__saving_location_dict ['list_sensor_names'][sensor_index],
                self.__saving_location_dict ['File_Name'])
                 
+           
+        # For time stamp info
+        filename_time_stamp = \
+                os.path.join(self.__saving_location_dict ['Directory'],
+               self.__saving_location_dict ['File_Name_time_stamp'])
+                
+                
+         # For time stamp info
+        filename_sensor_id = \
+                os.path.join(self.__saving_location_dict ['Directory'],
+               self.__saving_location_dict ['File_Name_sensor_id'])
+                
+        
+        sensor_id_vec = np.full(self.__width, sensor_index)
+        
+        '''
+        np.full create an array filled with sensor_index of length
+        
+        self.__width
+        '''
+       
                 
         # start slicing through the csv file
         for index in range(iteration_per_csv_file):
@@ -179,40 +201,60 @@ class SpecCense_Construction:
             Checking for frame continuity
             '''
             
-            
             test_shape = diff[diff > self.__margin].shape
-    
+            
+            print('  --> Checking frame continuity '
+                  'for slice # ' ,index, end = '')
     
             if test_shape[0] == 0:
                 
+                
+                print(' : Frames are continous \n')
         
                 '''
                 -All the frames are continous
-                    -No violation 
+                    -No time stampe above the margin
             
-                Here we create the file 
+                Here we create the .npy files
                 '''
-                                  
-                np.save(filename + str(days) + '_' + str(hour) + '_' + str(index) , \
+                
+                 # saving the sensor id
+                
+                np.save(filename_sensor_id + str(sensor_index) + \
+                        '_' + str(days) + '_' + str(hour) + \
+                        '_' + str(index) , sensor_id_vec)
+                
+                # saving the time stamp
+                
+                np.save(filename_time_stamp + str(sensor_index) + \
+                        '_' + str(days) + '_' + str(hour) + \
+                        '_' + str(index) , unix_time_stamp_measured)
+                
+                 
+                # saving the ocataves spectrograms                 
+                np.save(filename + str(sensor_index) +  '_' + \
+                        str(days) + '_' + str(hour) + '_' + str(index) , \
                         original_numpy_data[start:end, 3:])
         
-                print('- Iteration #',index,': Frames are continous \n')
+                print('  --> Finish creating .npy files \n')
         
             else:
                 
                 '''
                 - There is discontinuity
-                    Reject the frame                
+                    - Reject the frame                
                 '''            
                 
-                print('- Iteration #',index,
-                ': Theres is discontinuity, slice is rejected \n')    
+                print(' : Theres is discontinuity, \
+                      slice is rejected \n')    
 
             
             # updating the offset         
             start = start + self.__width
             
             end =  end + self.__width
+            
+            print('  --> Shifting the slice \n')
     
     
     

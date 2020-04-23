@@ -51,7 +51,11 @@ saving_location_dict = {
     
     'list_sensor_names':list_sensor_name,
     
-    'File_Name':'train_spec_'
+    'File_Name':'train_spec_',
+    
+    'File_Name_time_stamp':'train_time_',
+    
+    'File_Name_sensor_id' : 'train_id_'
     }
 
 
