@@ -75,42 +75,91 @@ class SpecCense_Construction:
         hyperparameters_values = [v for v in \
                             self.__ordered_dicton_parameters.values()]
             
-            
+        data_path = []
+          
+        hours_vector = np.empty(4) # testing for 4 hours
+        
+        counter_files = 0
+        
         for sensor_index, year, month , days , hour in \
             itertools.product(*hyperparameters_values):
+                
+                
+                
                 
                 print('- Working with sensor #',sensor_index,'|',  
               'year #',year,'|','month #',month,'|','day #',days,'|', 
               'hour #',hour,'| \n')
                 
-                data_path = 'Data_Set/' + \
+                data_path.append('Data_Set/' + \
                 self.__list_sensor_name [sensor_index] + '/' + \
                   str(year) + '/' + str(month) + '/' + \
-                  str(days) + '/' + str(hour) + '.zip'
+                  str(days) + '/' + str(hour) + '.zip') 
                   
+                hours_vector[hour] = hour
                   
                 print('  --> Testing file existence:', end = '')
                       
-                if os.path.isfile(data_path) == True:
+                if os.path.isfile(data_path[hour]) == True:
                     
                     '''
                     Here we create the data set
-                    
                     '''
+                    # increment the counter_file by 1
+                    counter_files += 1 
                     
-                    print(' File Exist \n')
+                    print(' File Exist, we have,',counter_files,
+                          'files \n')
                     
-                    # Create the .npy files
-                    self.__slicing(data_path,sensor_index , month,
-                                   days,hour)
                     
+                    if counter_files == hours_vector.shape[0]:
+                        '''
+                        Ensure that we have 4 csv files
+                        '''
+                        
+                        hour_diff = np.diff(hours_vector)
+                        
+                        test_hour_shape = hour_diff[hour_diff > 1].shape
+                        
+                        if test_hour_shape[0] == 0:
+                            
+                            '''
+                            Ensure that the 4 csv files are consecutive in
+                            hours
+                                - In other words, time difference 
+                                is not > 1 hour
+                            '''
+                            
+                            print('  --> All the', counter_files,
+                                  ' files are consecutive in hours \n')
+                            
+                            print('--------------------------- \n')
+                            
+                            print(' --> Start Slicing the csv file and'\
+                                  ' creating the .npy data \n')
+                                
+                            print('--------------------------- \n')
+                            
+                            # Create the .npy files
+                            self.__slicing(data_path,sensor_index , month,
+                                   days)
+                        
                     
                 else:
                     
                     print(' No File \n')
+                 
+        
+        # Clearing the content for next testing
+        data_path.clear()
+                
+        counter_files = 0
+                
+                
+                
+                
                     
-                    
-    def __slicing(self,data_path,sensor_index,month,days,hour):
+    def __slicing(self,data_path,sensor_index,month,days):
         
         '''
          Read the csv file using pandas data frame and directly convert to
@@ -121,8 +170,16 @@ class SpecCense_Construction:
                  - this is need to be specified otherwise it will take
                      the first row as header and skip it while reading
         '''   
-        original_numpy_data  = \
-        pd.read_csv(data_path,header = None).to_numpy()
+        original_data_list  = []
+            
+        for i in range(len(data_path)):
+            
+            original_data_list.append(pd.read_csv(data_path[i],
+                                                  header = None).to_numpy()) 
+            
+            
+        original_numpy_data = np.vstack(original_data_list)
+        
         
         iteration_per_csv_file = \
         math.floor(original_numpy_data.shape[0]/ self.__width) 
@@ -219,20 +276,19 @@ class SpecCense_Construction:
                  # saving the sensor id
                 
                 np.save(filename_sensor_id + str(sensor_index) + \
-                        '_'+ str(month) + '_' + str(days) + '_' + str(hour) + \
-                        '_' + str(index) , sensor_id_vec)
+                        '_'+ str(month) + '_' + str(days) + '_' \
+                         + str(index) , sensor_id_vec)
                 
                 # saving the time stamp
                 
                 np.save(filename_time_stamp + str(sensor_index) + \
-                        '_'+ str(month) +'_' + str(days) + '_' + str(hour) + \
-                        '_' + str(index) , unix_time_stamp_measured)
+                        '_'+ str(month) +'_' + str(days) + '_'  \
+                         + str(index) , unix_time_stamp_measured)
                 
                  
                 # saving the ocataves spectrograms                 
                 np.save(filename + str(sensor_index) + \
-                        '_'+ str(month) + str(days) + '_' + \
-                        str(hour) + '_' + str(index) , \
+                        '_'+ str(month) + str(days) + '_' + str(index) , \
                         original_numpy_data[start:end, 3:])
                     
                 '''
