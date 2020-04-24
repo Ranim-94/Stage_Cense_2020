@@ -120,6 +120,12 @@ Naming convention:
 where xx = SensorIndex_month_day_hour_slice
 
 
+9) Data_Building_multiple_csv_files:
+------------------------------------
+
+Extending the 'Class_Dataset_Construction.py' to handle multiple csv files
+per 1 day.
+
 
 
 
