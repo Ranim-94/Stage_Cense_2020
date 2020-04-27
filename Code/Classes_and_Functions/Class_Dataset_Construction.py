@@ -10,6 +10,8 @@ import math
 
 import itertools
 
+import shutil 
+
 class SpecCense_Construction:
     
     
@@ -94,7 +96,7 @@ class SpecCense_Construction:
                 print('- Working with sensor #',sensor_index,'|',  
               'year #',year,'|','month #',month,'|','day #',days,' \n')
                 
-                data_path = 'Data_Set/' + \
+                data_path_day = 'Data_Set/' + \
                 self.__list_sensor_name [sensor_index] + '/' + \
                   str(year) + '/' + str(month) + '/' + str(days) 
                   
@@ -102,7 +104,7 @@ class SpecCense_Construction:
                 Listing all the hour.zip file in a particular
                 day
                 '''
-                list_hour_files  = os.listdir(data_path)
+                list_hour_files  = os.listdir(data_path_day)
                 
                 
                 if list_hour_files == []:
@@ -114,12 +116,14 @@ class SpecCense_Construction:
                     
 
                     '''
-                    splitting the extension .zip from the hour value
+                    1) Inside the day directory, we are listing
+                        all the prensent hour.zip 
+                        
+                    2) splitting the extension .zip from the hour value
                     '''
-                    for item in list_hour_files:
-            
-                         hour_string.append(os.path.splitext(item)[0])
-                     
+                    hour_string = [os.path.splitext(item)[0] \
+                                   for item in os.listdir(data_path_day)]
+                
        
                     '''
                     Transform into a numpy array and sort the hour values
@@ -139,25 +143,21 @@ class SpecCense_Construction:
                     
                     
                     '''
-                    Constructing the full path with hour.zip info
+                    Constructing the full path with 
+                    all hour.zip values
                     '''
-                    for i in range(hour_vector.shape[0]):
-        
-                        data_path_list.append(data_path + '/' + 
-                              str(hour_vector[i]) + '.zip') 
+                    data_path_list = [data_path_day +'/' + str(item) +'.zip' \
+                      for item in hour_vector] 
                             
                     # Create the .npy files
-                    self.__slicing(data_path_list,sensor_index , month,
-                                   days)
+                    self.__slicing(data_path_day,data_path_list,
+                                   sensor_index, month,days)
                         
                     print('  --> Finish slicing day # ',days,'\n')
                         
                     print('--------------------------- \n')
                             
-
-
-
-                    
+                  
                  
     def __create_dataset_directory(self):
         
@@ -185,7 +185,8 @@ class SpecCense_Construction:
               
             
                     
-    def __slicing(self,data_path,sensor_index,month,days):
+    def __slicing(self,data_path_day,
+                  data_path_list,sensor_index,month,days):
         
         '''
          Read the csv file using pandas data frame and directly convert to
@@ -196,22 +197,23 @@ class SpecCense_Construction:
                  - this is need to be specified otherwise it will take
                      the first row as header and skip it while reading
         '''   
-        original_data_list  = []
+        original_numpy_data = \
+        np.vstack([pd.read_csv(path,header = None).to_numpy()  
+                       for path in data_path_list]) 
             
-        for i in range(len(data_path)):
-            
-            original_data_list.append(pd.read_csv(data_path[i],
-                                                  header = None).to_numpy()) 
-            
-            
-        original_numpy_data = np.vstack(original_data_list)
-        
+    
         '''
         NumPy’s vstack stacks arrays in sequence 
         vertically i.e. row wise. 
         And the result is the same as using concatenate with axis=0.
         '''
         
+        
+        '''
+        Removing data after saving it
+        into the numpy array
+        '''
+        shutil.rmtree(data_path_day) 
         
         iteration_per_original_numpy_data = \
         math.floor(original_numpy_data.shape[0]/ self.__width) 
