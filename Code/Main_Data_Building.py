@@ -8,13 +8,22 @@ import collections
 from Classes_and_Functions.Class_Dataset_Construction \
 import SpecCense_Construction
 
+import os
+
 
 '''
 list containing sensor names
 '''
-list_sensor_name = ['urn:osh:sensor:noisemonitoring:B8-27-EB-EA-EB-EA',
-                  'urn:osh:sensor:noisemonitoring:B8-27-EB-EA-12-88',
-                  'urn:osh:sensor:noisemonitoring:B8-27-EB-22-C0-63']
+# list_sensor_name = ['urn:osh:sensor:noisemonitoring:B8-27-EB-1A-0B-6C',
+#                   'urn:osh:sensor:noisemonitoring:B8-27-EB-1F-AB-9F',
+#                   'urn:osh:sensor:noisemonitoring:B8-27-EB-03-5C-6B',
+#                   'urn:osh:sensor:noisemonitoring:B8-27-EB-3B-82-1C',
+#                   'urn:osh:sensor:noisemonitoring:B8-27-EB-4B-F1-E1',
+#                   'urn:osh:sensor:noisemonitoring:B8-27-EB-4D-21-0D']
+
+
+
+list_sensor_name = os.listdir('Data_Set/')
 
 
 '''
@@ -28,15 +37,15 @@ in which will change during testing file existence
 od2 = collections.OrderedDict()
 
 
-od2['list_sensor_index'] = [0,1,2]
+od2['list_sensor_index'] = [v for v in range(0,1)]
 
 od2['year'] = [2019]
 
 od2['month'] = [12]
 
-od2['days'] = [v for v in range(1,2)] # 1 --> 28
+od2['days'] = [v for v in range(1,29)] # 1 --> 28
 
-od2['hour'] = [v for v in range(4)] # 0 --> 23
+# od2['hour'] = [v for v in range(3)] # 0 --> 23
 
 
 
