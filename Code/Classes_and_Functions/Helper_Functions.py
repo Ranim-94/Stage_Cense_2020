@@ -1,107 +1,120 @@
 
+import torch
+
+import torch.nn.functional as F
+
+
+def get_num_correct(preds,labels):
+       return preds.argmax(dim = 1).eq(labels).sum().item()
 
 
 
 
+@torch.no_grad()
+def get_all_preds(model, loader):
+       
+       '''
+       Description:
+              - The function get_all_preds will compute 
+              all predictions of the data set
+       '''
+       
+       '''
+       - the decorator torch.no_grad() will turn off the 
+       grad checking of the graph, because when building the
+       confusion matrix, we are not doing any training so we don't 
+       need PyTorch feature for gradient cheking, so we turn it off
+       This will let us save memory
+       
+       - the model is the network instance
+       
+       we pass a loder instance beucause when plotting the 
+       
+       confusion matrix, we can't process all the images at once
+       
+       so we break them into batches
+       '''
+       
+       all_preds = torch.tensor([])
+       for batch in loader:
+              images, labels = batch
+              
+              preds = model(images)
+              
+              all_preds = torch.cat((all_preds, preds),dim=0)
+              
+       return all_preds
 
-import numpy as np
 
-import os
+# For CNN layers
+def conv_block(in_channels, out_channels, parameters_dic):
+       
+    if parameters_dic['pooling_option'] == True:
 
-def creating_sample(original_numpy_data,width,iteration_per_csv_file,margin
-,saved_path):
-    
-    start = 0
-    
-    end = width 
-    
-    '''
-    end = width and not width -1 because the slcing in numpy is exclusive
+           return torch.nn.Sequential(
+        torch.nn.Conv2d(in_channels, out_channels, 
+                        kernel_size = parameters_dic['kernel_size']),
+        torch.nn.BatchNorm2d(out_channels),
         
-        - so if width = 100 (we want 100 frames)
-            [0:100] will be from 0 -->99 which are 100 frames
-    
-    '''
+         # activation function choice
+        torch.nn.ReLU(),
 
+        torch.nn.MaxPool2d(kernel_size = parameters_dic['kernel_size_pool'], 
+                           stride = parameters_dic['stride_pool'], 
+                           padding = parameters_dic['padding_pool']),
+        
+       
+   
+    )
     
-    for index in range(iteration_per_csv_file):
-        
-        
-        '''
-        taking the unix tim stamp column
-        '''
-        
-        unix_time_stamp_measured = original_numpy_data[start:end,0].copy()
-        
-        '''
-        Computing the difference 
-        '''
-        diff = np.diff(unix_time_stamp_measured)
-        
-        
-        '''
-        Checking for frame continuity
-        '''
-        
-        
-        test_shape = diff[diff > margin].shape
+    else:
+           return torch.nn.Sequential(
+        torch.nn.Conv2d(in_channels, out_channels, 
+                        kernel_size = parameters_dic['kernel_size']),
+        torch.nn.BatchNorm2d(out_channels),
 
-
-        if test_shape[0] == 0:
-            
+        # activation function choice
+        torch.nn.ReLU(),
+   
+    )   
     
-            '''
-            -All the frames are continous
-                -No violation 
+    
+    # For Dense layers
+def dense_block(in_features, out_features, **kwargs):
+    return torch.nn.Sequential(
+        torch.nn.Linear(in_features, out_features, **kwargs),
+        #nn.BatchNorm2d(out_f),
         
-            Here we create the file 
-            '''
-            filename = os.path.join('Created_Dataset','train_spec_')
-            
-            np.save(filename +  str(index), \
-                    original_numpy_data[start:end, 3:].T)
-    
-            print('- Iteration # ',index,
-            'Frames are continous \n')
-    
-        else:
-            
-            '''
-            - There is discontinuity
-                Reject the frame                
-            '''            
-            
-            print('- Iteration #',index,
-            'Theres is discontinuity, slice is rejected \n')    
-            
-            
-    
+        # activation function choice
+        torch.nn.ReLU(),
         
-        # updating the offset         
-        start = start + width
-        
-        end =  end + width
-    
-    
-    
-    
-    '''
-    - Description of the function:    
-    
-    -At a first step we matrix of shape 29 x width
-        - where the slicing [start:end] will always
-            be of length = width
-        
-        - the 3 index in [start:end, 3:] 
-        is where the octave bands starts in the csv file
-            - we have 29 octave bands we are working on
-                that's why the shape will be 29 x width
-    '''
-
-
-
-
-
+       
+    )
        
        
        
+def log_CNN_layers(CNN_model):
+       
+       '''
+       This function will print the names of the layers
+       along with their shape:
+              - how manny filters in each layer
+              - depth of each filter
+              
+       All in batch format
+       '''
+       
+       print('Printing the CNN Model layers name and their corresponding \
+             shape: \n')
+       
+       for name,param in CNN_model.named_parameters():
+              
+              print(name,'\t \t',param.shape,'\n')
+       
+
+
+        
+
+        
+        
+     
