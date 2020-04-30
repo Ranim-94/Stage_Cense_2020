@@ -127,7 +127,14 @@ Extending the 'Class_Dataset_Construction.py' to handle multiple csv files
 per 1 day.
 
 
+10) Audio2Vec_Encoder_Part
+----------------------------
 
+In this part I have done the encoder part of audio2vec.
+
+Having some issue with the size of the data when passing through the conv layer.
+
+Working on solving it.
 
 
 
