@@ -1,7 +1,9 @@
 
 import torch
 
-import torch.nn.functional as F
+import math
+
+
 
 
 def get_num_correct(preds,labels):
@@ -53,7 +55,10 @@ def conv_block(in_channels, out_channels, parameters_dic):
 
            return torch.nn.Sequential(
         torch.nn.Conv2d(in_channels, out_channels, 
-                        kernel_size = parameters_dic['kernel_size']),
+                        kernel_size = parameters_dic['kernel_size'],
+                        padding = parameters_dic['padding']),
+        
+        
         torch.nn.BatchNorm2d(out_channels),
         
          # activation function choice
@@ -69,8 +74,11 @@ def conv_block(in_channels, out_channels, parameters_dic):
     
     else:
            return torch.nn.Sequential(
+               
         torch.nn.Conv2d(in_channels, out_channels, 
-                        kernel_size = parameters_dic['kernel_size']),
+                        kernel_size = parameters_dic['kernel_size'],
+                        padding = parameters_dic['padding']),
+        
         torch.nn.BatchNorm2d(out_channels),
 
         # activation function choice
@@ -113,7 +121,76 @@ def log_CNN_layers(CNN_model):
        
 
 
-        
+def compute_size(parameters_dictionary):
+     
+           
+            '''
+             - This method compute the size (width and height) of each 
+             feature map outputted from each CNN Hidden layer
+           
+              
+            - We return the height and width of the last CNN layer
+            so we can use them when we do a flattening operation
+            so we can pass to dense layers
+            '''
+           
+           
+            '''
+            Unpacking the heigt and width of the input
+            '''
+            width, height = parameters_dictionary['size_input']
+            
+            print('--> Initial sizes are: \n width = ',
+                  width, 'and height = ',height,'\n')
+            
+            
+            
+            '''
+              Looping throught the nb of CNN layers
+            '''
+            for i in \
+           range(len(parameters_dictionary['list_filter_nb_per_layer'])):
+                  
+                  out_hidden_w = \
+                  math.floor((width + 
+                     2 * parameters_dictionary['padding'] - 
+                     parameters_dictionary['kernel_size'])/
+                                parameters_dictionary['stride'] + 1)
+                  
+                  
+                  out_hidden_h = \
+                  math.floor((height + 
+                     2 * parameters_dictionary['padding'] - 
+                     parameters_dictionary['kernel_size'])/
+                                parameters_dictionary['stride'] + 1)
+                  
+                  width,height = out_hidden_w,out_hidden_h
+                  
+                  print('--> After Conv layer #',i,'\n width = ',
+                        width,'and height = ',height,'\n')
+                  
+                  
+                  if parameters_dictionary['pooling_option'] == True:
+                         
+                         
+                         out_hidden_w = math.floor((width +
+                     2 * parameters_dictionary['padding_pool'] - 
+                     parameters_dictionary['kernel_size_pool'])/
+                     parameters_dictionary['stride_pool'] + 1)
+                  
+                  
+                         out_hidden_h = math.floor((height + 
+                     2 * parameters_dictionary['padding_pool'] - 
+                     parameters_dictionary['kernel_size_pool'])/
+                     parameters_dictionary['stride_pool'] + 1)
+                         
+                         width,height = out_hidden_w,out_hidden_h
+                         
+                         print('--> After pooling layer #',i,'\n width = ',
+                        width,'and height = ',height,'\n')
+                 
+
+              
 
         
         

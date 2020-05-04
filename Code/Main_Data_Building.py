@@ -8,7 +8,7 @@ import collections
 from Classes_and_Functions.Class_Dataset_Construction \
 import SpecCense_Construction
 
-import os
+
 
 
 '''
@@ -23,8 +23,10 @@ list containing sensor names
 
 
 
-list_sensor_name = os.listdir('Data_Set/')
+# list_sensor_name = os.listdir('Data_Set/')
 
+
+list_sensor_name = ['urn:osh:sensor:noisemonitoring:B8-27-EB-1A-0B-6C']
 
 '''
 Creating an ordered dictonary for the necessary paraemeters
@@ -45,11 +47,10 @@ od2['month'] = [12]
 
 od2['days'] = [v for v in range(1,29)] # 1 --> 28
 
-# od2['hour'] = [v for v in range(3)] # 0 --> 23
-
-
 
 width , margin  = int(math.pow(10,4)) , 250
+
+
 
 '''
 Casting into int because I use width as index in slicing
@@ -57,7 +58,7 @@ Casting into int because I use width as index in slicing
 
 saving_location_dict = {
     
-    'Directory': 'Created_Dataset',
+    'Directory': 'CreatedDataset',
         
     'File_Name':'train_spec_',
     
@@ -69,9 +70,10 @@ saving_location_dict = {
 
 # Creating the instance
 data_instance = SpecCense_Construction(ordered_dicton_parameters = 
-                  od2, list_sensor_name = list_sensor_name, \
-             width = width, margin = margin, \
-             saving_location_dict = saving_location_dict)
+              od2, list_sensor_name = list_sensor_name,     
+               width = width, margin = margin, 
+              saving_location_dict = saving_location_dict,
+              option_remove = False)
     
 
 # Calling the method

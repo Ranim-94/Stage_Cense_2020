@@ -17,7 +17,7 @@ class SpecCense_Construction:
     
     
     def __init__(self,ordered_dicton_parameters,list_sensor_name, \
-                 width,margin,saving_location_dict):
+                 width,margin,saving_location_dict,option_remove):
         
 
         self.__ordered_dicton_parameters = ordered_dicton_parameters
@@ -35,6 +35,8 @@ class SpecCense_Construction:
         '''
         
         self.__saving_location_dict = saving_location_dict 
+        
+        self.__option_remove = option_remove
         
 
 
@@ -146,8 +148,8 @@ class SpecCense_Construction:
                     Constructing the full path with 
                     all hour.zip values
                     '''
-                    data_path_list = [data_path_day +'/' + str(item) +'.zip' \
-                      for item in hour_vector] 
+                    data_path_list = \
+                    [data_path_day +'/' + str(item) +'.zip' for item in hour_vector] 
                             
                     # Create the .npy files
                     self.__slicing(data_path_day,data_path_list,
@@ -177,7 +179,9 @@ class SpecCense_Construction:
             Creating directory
             '''
                 
-            os.makedirs(self.__saving_location_dict['Directory'])
+            print('- ',self.__saving_location_dict['Directory'],'\n')
+            
+            os.mkdir(self.__saving_location_dict['Directory'])
      
             print('- Dataset Directory named '+ \
                   self.__saving_location_dict ['Directory'] + \
@@ -209,11 +213,15 @@ class SpecCense_Construction:
         '''
         
         
-        '''
-        Removing data after saving it
-        into the numpy array
-        '''
-        shutil.rmtree(data_path_day) 
+        
+        if self.__option_remove == True:
+            
+            '''
+            Removing data after saving it
+            into the numpy array
+            '''
+            shutil.rmtree(data_path_day)
+             
         
         iteration_per_original_numpy_data = \
         math.floor(original_numpy_data.shape[0]/ self.__width) 
