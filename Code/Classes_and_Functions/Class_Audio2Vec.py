@@ -47,6 +47,8 @@ class Audio2Vec(torch.nn.Module):
         [conv_block(in_f, out_f, parameters_dic) 
                        for in_f, out_f in zip(self._CNN_layers_size, 
                                               self._CNN_layers_size[1:])]
+                
+
 
         '''
         --> Creating the CNN part:
@@ -74,7 +76,7 @@ class Audio2Vec(torch.nn.Module):
         
         # Computing the size for flattening part
         
-        out_hidden_last_CNN_layer = self.compute_size()
+        out_hidden_last_CNN_layer = self.__compute_size()
         
         
         '''
@@ -126,7 +128,7 @@ class Audio2Vec(torch.nn.Module):
         return x
  
        
-    def compute_size(self):
+    def __compute_size(self):
            
             '''
              - This method compute the size (width and height) of each 
@@ -143,12 +145,8 @@ class Audio2Vec(torch.nn.Module):
             Unpacking the heigt and width of the input
             '''
             width, height = self.parameters_dictionary['size_input']
-            
-            print('--> Initial sizes are: \n width = ',
-                  width, 'and height = ',height,'\n')
-            
-            
-            
+    
+           
             '''
               Looping throught the nb of CNN layers
             '''
@@ -170,9 +168,7 @@ class Audio2Vec(torch.nn.Module):
                   
                   width,height = out_hidden_w,out_hidden_h
                   
-                  print('--> After Conv layer #',i,'\n width = ',
-                        width,'and height = ',height,'\n')
-                  
+          
                   
                   if self.parameters_dictionary['pooling_option'] == True:
                          
@@ -190,9 +186,7 @@ class Audio2Vec(torch.nn.Module):
                          
                          width,height = out_hidden_w,out_hidden_h
                          
-                         print('--> After pooling layer #',i,'\n width = ',
-                        width,'and height = ',height,'\n')
-                 
+                       
 
             '''
               This will be the size of the feature map
