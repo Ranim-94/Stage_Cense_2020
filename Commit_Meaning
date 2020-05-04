@@ -137,6 +137,35 @@ Having some issue with the size of the data when passing through the conv layer.
 Working on solving it.
 
 
+11) Audio2Vec_Encoder_Part_2
+---------------------------------
+
+Issue of the dimension has been solved.
+
+Now committing the solution.
+
+How I solve it:
+
+
+I have added a padding option for the convolution operation
+
+
+so we don't loose dimension.
+
+
+Also in the max pooling operation, I have made the kernel size of 1 with
+stride of 2, so we can reduce the frequency dimension only and not the time
+
+dimension, since the time dimension is 1 already and nothing to be 
+
+reduced.
+
+
+
+
+
+
+
 
 
 
