@@ -67,12 +67,16 @@ def conv_block(in_channels, out_channels, parameters_dic):
         torch.nn.MaxPool2d(kernel_size = parameters_dic['kernel_size_pool'], 
                            stride = parameters_dic['stride_pool'], 
                            padding = parameters_dic['padding_pool']),
-        
-       
+ 
    
     )
+       
+        
     
     else:
+        
+           print('--> We are here in the else \n') 
+           
            return torch.nn.Sequential(
                
         torch.nn.Conv2d(in_channels, out_channels, 
