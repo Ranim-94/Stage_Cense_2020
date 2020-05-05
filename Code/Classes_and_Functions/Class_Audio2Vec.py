@@ -73,17 +73,19 @@ class Audio2Vec(torch.nn.Module):
                 
 
         '''
-        --> Creating the CNN part:      
+        --> Creating the Encoder part:      
                - since Sequential does not accept a list, 
                   we decompose the conv_blokcs by using the * operator.
         '''      
         self.encoder = torch.nn.Sequential(*conv_blokcs_list)
        
- #---------------------- Linear Part ----------------------------------#
+ #---------------------- Linear and Embedding Part ----------------#
 
-        '''
-        --> Usually when reached the linear part we 
+        '''      
+        Some Explanation:
+        -------------------
         
+        --> Usually when reached the linear part we         
         do a flatten opeartion by computing the number of features
         map produced in the last CNN layer and turing them into 1 D vector
         
@@ -101,40 +103,15 @@ class Audio2Vec(torch.nn.Module):
          - the only difference is that in global max pooling,
          the size of the pooling filter will have the same size
          as the input feature map
+         
+         - And global max pooling produce a scalar number (not an image map)
 
-       --> So the first step is to set the dimension of the pooling filter
-         to be equal to the dimensions of the feature map produced by the 
-         last CNN layer
-        '''
         
-        self.parameters_dictionary['pooling_option'] = True
-        
-
-        out_hidden_w,out_hidden_h = self.__compute_size()
-        
-
-        '''
-        Setting the dimension of the pooling filter
-        '''
-        self.parameters_dictionary['kernel_size_pool'] = \
-        (out_hidden_h,out_hidden_w * parameters_dic['stride_pool'])
-                
-        '''
-        This dimension will be used in the forward method
-        when calling torch.nn.functional.max_pool2d()
-        '''
-        
-        
-        # Step 2: Specifying the number of units in each dense layer
-        
-        
-        '''
-        Since we have used global max pooling in the last CNN layer,
-        
-        the number of inputs in the last CNN layer will be the same
-        of the number of filters used since global max pooling produce 
-        
-        1 scalar number
+        --> Since the authors used global max pooling in the last CNN layer,
+            there is no need to compute the dimension of the feature map
+            since global max pooling produce 1 scalar number
+            
+            
        
         '''
         
@@ -158,21 +135,42 @@ class Audio2Vec(torch.nn.Module):
         
     def forward(self, x):
  
+        
+        print('--> Tensor shape before encoder part:',x.shape,'\n') 
+        
         # Forward Propagation in all CNN layers   
         x = self.encoder(x)
         
+        print('--> Tensor shape after encoder part:',x.shape,'\n')
+        
+        
+        print('--> Done testing shape for encoder part ! \n')
 
         '''
         - Reaching the linear part:
             - need to do global max pooling first
         '''
      
-        x = torch.nn.functional.max_pool2d(x,kernel_size = 
-            self.parameters_dictionary['kernel_size_pool'])
+        x = torch.nn.functional.max_pool2d(x,
+        kernel_size = (1,x.shape[3]) )
+        
+        '''
+        Since we have input all frames (2 of the past and 2 of the future)
+        
+        the global max pooling need to be performed on each frame alone,
+        
+        where each frame have a dimension 1 x something
+            - where something is the result coming from the processing
+                through the encoder part.
+            - that's why we have set the kernel_size to (1,x.shape[3])
+            
+            and not (x.shape[2],x.shape[3])
+        '''
         
 
         '''
         Transform the batch format into rank 2 tensor
+        to be processed in the fully connected layers
         '''
         x = x.reshape(-1, self._dense_layers_size[0])
 
@@ -183,78 +181,7 @@ class Audio2Vec(torch.nn.Module):
         return x
  
        
-    def __compute_size(self):
-           
-            '''
-             - This method compute the size (width and height) of each 
-             feature map outputted from each CNN Hidden layer
-                 - If there is pooling layer after convolution,
-                 also the dimension will be computed
-           
-              
-            - We return the height and width of the last CNN layer
-            so we can use them when we do a flattening operation
-            so we can pass to dense layers
-            '''
-           
-           
-            '''
-            Unpacking the heigt and width of the input
-            '''
-            width, height = self.parameters_dictionary['size_input']
-    
-           
-            '''
-              Looping throught the nb of CNN layers
-            '''
-            for i in \
-           range(len(self.parameters_dictionary['list_filter_nb_per_layer'])):
-                  
-                  out_hidden_w = \
-                  math.floor((width + 
-                     2 * self.parameters_dictionary['padding'] - 
-                     self.parameters_dictionary['kernel_size'])/
-                                self.parameters_dictionary['stride'] + 1)
-                  
-                  
-                  out_hidden_h = \
-                  math.floor((height + 
-                     2 * self.parameters_dictionary['padding'] - 
-                     self.parameters_dictionary['kernel_size'])/
-                                self.parameters_dictionary['stride'] + 1)
-                  
-                  width,height = out_hidden_w,out_hidden_h
-                  
-          
-                  
-                  if self.parameters_dictionary['pooling_option'] == True:
-                         
-                         
-                         out_hidden_w = math.floor((width +
-                     2 * self.parameters_dictionary['padding_pool'] - 
-                     self.parameters_dictionary['kernel_size_pool'])/
-                     self.parameters_dictionary['stride_pool'] + 1)
-                  
-                  
-                         out_hidden_h = math.floor((height + 
-                     2 * self.parameters_dictionary['padding_pool'] - 
-                     self.parameters_dictionary['kernel_size_pool'])/
-                     self.parameters_dictionary['stride_pool'] + 1)
-                         
-                         width,height = out_hidden_w,out_hidden_h
-                         
-                       
-
-            '''
-              This will be the size of the feature map
-              coming out from the last CNN layer we have in our
-              model
-            '''       
-            return out_hidden_w,out_hidden_h
-
-
-
-          
+ 
   
     
        

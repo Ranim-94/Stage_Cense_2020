@@ -75,7 +75,7 @@ def conv_block(in_channels, out_channels, parameters_dic):
     
     else:
         
-           print('--> We are here in the else \n') 
+  
            
            return torch.nn.Sequential(
                
@@ -142,10 +142,10 @@ def compute_size(parameters_dictionary):
             '''
             Unpacking the heigt and width of the input
             '''
-            width, height = parameters_dictionary['size_input']
+            height,width = parameters_dictionary['size_input']
             
-            print('--> Initial sizes are: \n width = ',
-                  width, 'and height = ',height,'\n')
+            print('--> Initial sizes are: \n height = ',
+                  height ,'and width = ', width ,'\n')
             
             
             
@@ -170,8 +170,9 @@ def compute_size(parameters_dictionary):
                   
                   width,height = out_hidden_w,out_hidden_h
                   
-                  print('--> After Conv layer #',i,'\n width = ',
-                        width,'and height = ',height,'\n')
+                  
+                  print('-> After Conv layer #',i,'\n height = ',
+                  height ,'and width = ', width ,'\n')
                   
                   
                   if parameters_dictionary['pooling_option'] == True:
@@ -180,18 +181,20 @@ def compute_size(parameters_dictionary):
                          out_hidden_w = math.floor((width +
                      2 * parameters_dictionary['padding_pool'] - 
                      parameters_dictionary['kernel_size_pool'])/
-                     parameters_dictionary['stride_pool'] + 1)
+                     parameters_dictionary['stride_pool'][1] + 1)
                   
                   
                          out_hidden_h = math.floor((height + 
                      2 * parameters_dictionary['padding_pool'] - 
                      parameters_dictionary['kernel_size_pool'])/
-                     parameters_dictionary['stride_pool'] + 1)
+                     parameters_dictionary['stride_pool'][0] + 1)
                          
                          width,height = out_hidden_w,out_hidden_h
+         
+                         print('-> After pooling layer #',i,'\n height = ',
+                               height ,'and width = ', width ,'\n')
                          
-                         print('--> After pooling layer #',i,'\n width = ',
-                        width,'and height = ',height,'\n')
+                         
                  
 
               

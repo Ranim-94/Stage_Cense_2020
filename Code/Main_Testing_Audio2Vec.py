@@ -48,8 +48,8 @@ parameters_dic = {
        
        # Input layer
        
-       # [width, height]
-       'size_input': (29,1),
+       # [height, width]
+       'size_input': (4,29),
        
        # If we are working with gray scale of RGB images
        'volume_input':1,
@@ -66,14 +66,22 @@ parameters_dic = {
        
        'pooling_option':True,
        
-       'padding_pool':0, 'stride_pool': 2,'kernel_size_pool':1,
+       'padding_pool':0, 'stride_pool': (1,2),'kernel_size_pool':1,
+       
+       # stride_pool: (for striding height, for striding width)
+       
        #---------------------------------------
        
        # for Multilayer perceptrons part: number of neurons
        # for each dense fully connected layer
-       'dense_layers_list' : (128,),
+       'dense_layers_list' : (128,)
 
        }
+
+
+'''
+
+'''
 
 
 start , finish =  3 , sample_original.shape[1] - 2
@@ -81,9 +89,6 @@ start , finish =  3 , sample_original.shape[1] - 2
 num1 = random.randint(start,finish )
 
 print("- Random integer: ", num1,'\n')
-
-list_trial = [*parameters_dic['list_filter_nb_per_layer']]
-
 
 
 
@@ -93,12 +98,12 @@ so we can process it into the Audio2Vec model
 
     - batch format shape = [batch size , volume , Height, width]
 '''
-# sample = sample_original[num1 - 2 : 
-#                          num1 + 2,:].clone().unsqueeze(0).unsqueeze(0)
+sample = sample_original[num1 - 2 : 
+                          num1 + 2,:].clone().unsqueeze(0).unsqueeze(0)
 
 
-sample = sample_original[num1 - 1,:].reshape(-1,29).clone().\
-unsqueeze(0).unsqueeze(0)
+# sample = sample_original[num1 - 1,:].reshape(-1,29).clone().\
+# unsqueeze(0).unsqueeze(0)
 
 
 
