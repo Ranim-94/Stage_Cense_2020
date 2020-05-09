@@ -2,24 +2,15 @@
 
 
 
-import os
 
-import math
-
-import shutil
-
-list_sensor_name = os.listdir('CreatedDataset')
-
-
-
-training_size = math.floor(0.7 * ( len(list_sensor_name)/3) )  
-
+from Classes_and_Functions.Class_Splitting_Dataset \
+import Splitting_Datasets
 
 saving_location_dict = {
     
     'Directory': 'CreatedDataset',
         
-    'File_Name':'train_spec_',
+    'File_Name_Spectrograms':'train_spec_',
     
     'File_Name_time_stamp':'train_time_',
     
@@ -27,35 +18,46 @@ saving_location_dict = {
     }
 
 
-
-
-
-train_spec_list = [item for item in list_sensor_name 
- if item.startswith(saving_location_dict ['File_Name'])]
-
-
-train_id_list = [item for item in list_sensor_name
- if item.startswith(saving_location_dict ['File_Name_sensor_id'])]
-
-train_time_list = [item for item in list_sensor_name
-        if item.startswith(saving_location_dict ['File_Name_time_stamp'])]
-
-
-       
-train_spec_list.sort()
-
-train_id_list.sort()
-
-train_time_list.sort()   
-
-
-# for i in range(training_size):
+splitting_parameters = {
     
-#     source_spec = 'CreatedDataset/'+ train_spec_list[0]   
-   
-#     shutil.move(source_spec,'train')
+    'training':0.7,
     
+    'eval':0.2,
     
+    'valid':0.1,
+    
+    }
+
+
+splitting_directories_names = {
+    
+    'train_directory_name':'Training_Set',
+    
+    'eval_directory_name':'Eval_Set',
+    
+    'valid_directory_name':'Validation_Set',
+    
+    }
+
+
+'''
+Instantiating
+'''
+
+splitt_instance = \
+Splitting_Datasets(saving_location_dict, splitting_parameters, 
+                                     splitting_directories_names)
+
+'''
+Calling the splitt method()
+'''
+
+splitt_instance.splitt()
+
+
+
+
+
 
 
         
