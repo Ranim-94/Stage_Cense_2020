@@ -9,35 +9,17 @@ import torch
 
 import numpy as np
 
-import random
 
-import torchvision
 
-import torchvision.transforms as transforms
-from torchvision import transforms, datasets
+
 
 from Classes_and_Functions.Class_Audio2Vec import Audio2Vec
 
 from Classes_and_Functions.Helper_Functions import \
 log_CNN_layers,compute_size
 
+from Classes_and_Functions.Class_Custome_Dataset import Dataset_SpecSense
 
-
-
-# Loading Some Dummy Variable
-
-sample_original = \
-torch.from_numpy(np.load('train_spec_0_12_6_0.npy')).float()
-
-'''
-This casting is because numpy use float64 as their default type
-
-We need to cast the tensor to double so the data and the model
-have same data type
-'''
-
-
-print('- Shape of the sample_original is:',sample_original.shape,'\n')
 
 '''
 --> Creating a dictionary containing different paremeters
@@ -56,7 +38,7 @@ parameters_dic = {
        #---------------------------------------
        
        # for CNN layers
-       'list_filter_nb_per_layer':(64,128,256,256),
+       'list_filter_nb_per_layer':(64,128,256,256,512,512),
        
        'padding':1, 'stride': 1,'kernel_size':3,
        
@@ -74,49 +56,76 @@ parameters_dic = {
        
        # for Multilayer perceptrons part: number of neurons
        # for each dense fully connected layer
-       'dense_layers_list' : (128,)
+       'dense_layers_list' : (128,),
+       
+       
+       # ---------- Decoder Specification -------------
+       
+       
+       'mode_upsampling':'nearest', 'scale_factor':(1,0.79),
+       
+       # 'scale_factor':(height,width)
+       
+        'scale_reconstruction':(0.3,1),
+        
+        
+        #------------- Batch Size -------------------
+        
+        'batch_size':10
+       
 
        }
 
 
+
+
+saving_location_dict = {
+    
+    'Directory': 'Training_Set',
+        
+    'File_Name_Spectrograms':'train_spec_',
+    
+    'File_Name_time_stamp':'train_time_',
+    
+    'File_Name_sensor_id' : 'train_id_'
+    }
+
+
+
+'''
+Loading Data: Instantiate
 '''
 
-'''
+dataset_instance = Dataset_SpecSense(saving_location_dict)
 
 
-start , finish =  3 , sample_original.shape[1] - 2
-
-num1 = random.randint(start,finish )
-
-print("- Random integer: ", num1,'\n')
-
-
-
-'''
-Slice the tensor and truning into a batch format 
-so we can process it into the Audio2Vec model
-
-    - batch format shape = [batch size , volume , Height, width]
-'''
-sample = sample_original[num1 - 2 : 
-                          num1 + 2,:].clone().unsqueeze(0).unsqueeze(0)
-
-
-# sample = sample_original[num1 - 1,:].reshape(-1,29).clone().\
-# unsqueeze(0).unsqueeze(0)
+# this will give us an iterable object
+train_loader = torch.utils.data.DataLoader(dataset = dataset_instance, 
+                          batch_size = parameters_dic['batch_size'],
+                          shuffle = True)
 
 
 
-print('- Sample shape after squeezing and slicing is :',
-      sample.shape,'\n')
+# convert to an iterator and look at one random sample
+sample,label = next(iter(train_loader))
 
 
-print('----------- Convolution Size Variation through layers \
-      -------------- \n')
 
-compute_size(parameters_dic)
 
-print ('---------------------------- \n')
+print('- Sample shape is :',sample.shape,'\n')
+
+
+print('- Label shape is :',label.shape,'\n')
+
+
+
+
+# print('----------- Convolution Size Variation through layers \
+#       -------------- \n')
+
+# compute_size(parameters_dic)
+
+# print ('---------------------------- \n')
 
 
 
@@ -125,20 +134,25 @@ net_1 = Audio2Vec(parameters_dic)
 
 
 
-print('----------- Encoder Architecture -------------- \n')
-
-log_CNN_layers(net_1)
-
-
-print ('---------------------------- \n')
-
-
-
-
 print('-- > Testing forward propagation through encoder part \n')
 
 # Testing Forward Pass
-pred = net_1(sample)
+pred, embedding = net_1(sample)
 
-print('- Prediction shape is',pred.shape,'\n')
+print('--> Prediction shape is',pred.shape,'\n')
+
+
+print('--> Embedding shape is:',embedding.shape,'\n')
+
+
+
+
+# print('----------- Audio2Vec Architecture -------------- \n')
+
+# log_CNN_layers(net_1)
+
+
+# print ('---------------------------- \n')
+
+
 
