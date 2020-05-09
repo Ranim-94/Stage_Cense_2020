@@ -1,9 +1,10 @@
 
 import torch
 
-import math
 
-from Classes_and_Functions.Helper_Functions import conv_block,dense_block
+
+from Classes_and_Functions.Helper_Functions import conv_block_encoder,\
+dense_block, conv_block_decoder
 
 
 '''
@@ -59,7 +60,8 @@ class Audio2Vec(torch.nn.Module):
 
                 parameters_dic['pooling_option'] = False
 
-                conv_blokcs_list.append(conv_block(in_f, out_f, parameters_dic))
+                conv_blokcs_list.append(conv_block_encoder(in_f, out_f, 
+                                                           parameters_dic))
                 
                 
             else:
@@ -69,7 +71,8 @@ class Audio2Vec(torch.nn.Module):
                     - we create conv layers with standard max pooling layers also
                 '''
                 
-                conv_blokcs_list.append(conv_block(in_f, out_f, parameters_dic))
+                conv_blokcs_list.append(conv_block_encoder(in_f, out_f, 
+                                                           parameters_dic))
                 
 
         '''
@@ -110,9 +113,7 @@ class Audio2Vec(torch.nn.Module):
         --> Since the authors used global max pooling in the last CNN layer,
             there is no need to compute the dimension of the feature map
             since global max pooling produce 1 scalar number
-            
-            
-       
+      
         '''
         
         self._dense_layers_size = \
@@ -131,20 +132,48 @@ class Audio2Vec(torch.nn.Module):
                        
         self.dense_part = torch.nn.Sequential(*dense_blokcs_list)
 
-       
+ 
+#------------------------------ Decoder Part ---------------------------
+
+        
+        '''
+        Setting the input channel to 1 for the decoder part
+        '''
+
+        self._CNN_layers_size[-1] = 1
+        
+        '''
+        Reversing the order of the layers for the Decoder Part
+        '''
+        self._CNN_layers_size.reverse()
+        
+        
+        decoder_blokcs_list = [conv_block_decoder(in_f, out_f,parameters_dic) 
+                       for in_f, out_f in zip(self._CNN_layers_size, 
+                                              self._CNN_layers_size[1:])]
+        
+  
+        self.decoder = torch.nn.Sequential(*decoder_blokcs_list)
+        
+        
+        self.decoder_restore =  \
+        torch.nn.Upsample(scale_factor = 
+                          parameters_dic ['scale_reconstruction'], 
+                    mode = parameters_dic['mode_upsampling'])
+        
+        
+ 
+
+
+#---------------------- Methods Imeplementation -----------------------
+      
         
     def forward(self, x):
- 
-        
-        print('--> Tensor shape before encoder part:',x.shape,'\n') 
+  
         
         # Forward Propagation in all CNN layers   
         x = self.encoder(x)
         
-        print('--> Tensor shape after encoder part:',x.shape,'\n')
-        
-        
-        print('--> Done testing shape for encoder part ! \n')
 
         '''
         - Reaching the linear part:
@@ -173,12 +202,39 @@ class Audio2Vec(torch.nn.Module):
         to be processed in the fully connected layers
         '''
         x = x.reshape(-1, self._dense_layers_size[0])
+        
 
         # Proessing in the dense layers part
         x = self.dense_part(x)
         
-    
-        return x
+        
+        '''
+        Storing the embedding results in a variable 
+        so we can take and use it later in the downstream task
+        '''
+        embedding = x.clone()
+        
+        
+        # Start Processing theough the Decoder
+        
+        '''
+        First we need to adjust again the format of the tensor
+        to a rank 4 tensor
+        '''
+
+        
+        x = \
+        x.reshape(self.parameters_dictionary['batch_size'],
+                  1,self.parameters_dictionary['size_input'][0],
+                  self.parameters_dictionary['dense_layers_list'][-1])
+        
+        
+        x = self.decoder(x)
+        
+        x = self.decoder_restore(x)
+        
+
+        return x,embedding
  
        
  
