@@ -49,7 +49,7 @@ def get_all_preds(model, loader):
 
 
 # For CNN layers
-def conv_block(in_channels, out_channels, parameters_dic):
+def conv_block_encoder(in_channels, out_channels, parameters_dic):
        
     if parameters_dic['pooling_option'] == True:
 
@@ -67,16 +67,12 @@ def conv_block(in_channels, out_channels, parameters_dic):
         torch.nn.MaxPool2d(kernel_size = parameters_dic['kernel_size_pool'], 
                            stride = parameters_dic['stride_pool'], 
                            padding = parameters_dic['padding_pool']),
- 
    
     )
-       
-        
+             
     
-    else:
-        
-  
-           
+    elif parameters_dic['pooling_option'] == False:
+            
            return torch.nn.Sequential(
                
         torch.nn.Conv2d(in_channels, out_channels, 
@@ -88,7 +84,34 @@ def conv_block(in_channels, out_channels, parameters_dic):
         # activation function choice
         torch.nn.ReLU(),
    
-    )   
+    )  
+       
+  
+def conv_block_decoder(in_channels, out_channels, parameters_dic):
+    
+    
+        '''
+         Here we create the CNN layers for the Decoder Part
+        '''
+        
+        return torch.nn.Sequential(
+               
+        torch.nn.Conv2d(in_channels, out_channels, 
+                        kernel_size = parameters_dic['kernel_size'],
+                        padding = parameters_dic['padding']),
+        
+        torch.nn.BatchNorm2d(out_channels),
+
+        # activation function choice
+        torch.nn.ReLU(),
+        
+        torch.nn.Upsample(scale_factor = parameters_dic['scale_factor'], 
+                         mode = parameters_dic['mode_upsampling'])
+        
+        
+        )
+
+
     
     
     # For Dense layers
@@ -197,7 +220,8 @@ def compute_size(parameters_dictionary):
                          
                  
 
-              
+
+                
 
         
         
