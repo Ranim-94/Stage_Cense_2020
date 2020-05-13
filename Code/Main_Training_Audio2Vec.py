@@ -28,6 +28,10 @@ log_CNN_layers,compute_size
 
 
 
+import os
+
+
+
 
 '''
 --> Creating a dictionary containing different paremeters
