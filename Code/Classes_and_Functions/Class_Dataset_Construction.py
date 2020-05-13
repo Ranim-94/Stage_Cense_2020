@@ -172,6 +172,7 @@ class SpecCense_Construction:
             
             print('- Dataset Directory named '+ \
                   self.__saving_location_dict ['Directory']+ ' exists \n')
+            
     
         else:
             
@@ -204,6 +205,9 @@ class SpecCense_Construction:
         original_numpy_data = \
         np.vstack([pd.read_csv(path,header = None).to_numpy()  
                        for path in data_path_list]) 
+        
+        
+        print('--> original_numpy_data shape is:',original_numpy_data.shape,'\n')
             
     
         '''
@@ -254,7 +258,7 @@ class SpecCense_Construction:
         # For octave spectrograms
         filename = \
                 os.path.join(self.__saving_location_dict ['Directory'],
-               self.__saving_location_dict ['File_Name'])
+               self.__saving_location_dict ['File_Name_Spectrograms'])
                 
            
         # For time stamp info
@@ -333,6 +337,11 @@ class SpecCense_Construction:
                         '_'+ str(month) + '_' + str(days) + '_' + str(index) , \
                         original_numpy_data[start:end, 3:])
                     
+                    
+                print('--> start index:',start,'| end index :',end,
+                      '| original_numpy_data lines is:',
+                      original_numpy_data[start:end, 3:].shape[0],'\n')
+                    
                 '''
                  - the 3 index in [start:end, 3:] 
                  is where the octave bands starts in the csv file
@@ -347,14 +356,14 @@ class SpecCense_Construction:
                     - Reject the frame                
                 '''            
                 
-                print(' : Theres is discontinuity, \
-                      slice is rejected \n')    
+                print(' : Theres is discontinuity ,' 
+                      'slice is rejected \n')    
 
             
             # updating the offset  of slicing         
             start = start + self.__width
             
-            end =  end + self.__width + 1
+            end =  end + self.__width 
             
             '''
             When updating the offset,
