@@ -7,7 +7,7 @@ import os
 
 import collections
 
-from Classes_and_Functions.Class_Dataset_Construction \
+from Classes_and_Functions.Class_Data_Building \
 import SpecCense_Construction
 
 from Classes_and_Functions.Class_Splitting_Dataset \

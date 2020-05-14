@@ -1,7 +1,7 @@
 
 import torch
 
-from Classes_and_Functions.Class_Custome_Dataset import Dataset_SpecSense
+from Classes_and_Functions.Class_Custome_Pytorch_Dataset import Dataset_SpecSense
 
 
 class Neural_Network_Training:
@@ -40,7 +40,7 @@ class Neural_Network_Training:
                      
               
                # Variable to track the losses and the prediction in the Network
-                     total_loss= 0
+                     total_loss = 0
               
                      for batch in train_loader:
                             
