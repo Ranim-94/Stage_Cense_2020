@@ -13,20 +13,28 @@ Experimenting on Audio2Vec
 import torch
 
 
-import math
 
+
+
+from collections import OrderedDict
 
 from Classes_and_Functions.Class_Neural_Network_Training import \
 Neural_Network_Training
 
-from Classes_and_Functions.Class_Audio2Vec import Audio2Vec
+
 
 from Classes_and_Functions.Helper_Functions import \
 log_CNN_layers,compute_size
 
 
 
-import os
+# Specifying the prams we want to test
+params_to_try = OrderedDict(
+    batch_size = [500,800],
+    epoch_times = [1], 
+    shuffle = [True]
+)
+
 
 
 
@@ -36,7 +44,7 @@ import os
 for Audio2Vec model
 '''
 
-parameters_dic = {
+parameters_neural_network = {
        
        # Input layer
        
@@ -81,7 +89,9 @@ parameters_dic = {
         
         #------------- Batch Size -------------------
         
-        'batch_size':100
+        # 'batch_size':params_to_try['batch_size']
+        
+        # # to test Audio2Vec when doing forward propagation
        
 
        }
@@ -105,33 +115,28 @@ saving_location_dict = {
 # print('----------- Convolution Size Variation through layers \
 #       -------------- \n')
 
-# compute_size(parameters_dic)
+# compute_size(parameters_neural_network)
 
 # print ('---------------------------- \n')
 
 
 
-# Creating the Neural Network instance
-net_1 = Audio2Vec(parameters_dic)
-
-
 
 optimization_option = {
     
-    'neural_network_model':net_1,
     
     'Objective_Function':torch.nn.MSELoss(),
     
-    'optimizer':torch.optim.Adam(net_1.parameters(), lr = math.pow(10,-3)),
-    
-    'epoch_times':1,
-    
-    'batch_size':parameters_dic['batch_size']
-    
     }
 
-set_train = Neural_Network_Training(optimization_option,saving_location_dict)
 
+
+
+show_trace = True
+
+
+set_train = Neural_Network_Training(optimization_option,parameters_neural_network,
+                                    saving_location_dict,params_to_try,show_trace)
 
 set_train.training()
 

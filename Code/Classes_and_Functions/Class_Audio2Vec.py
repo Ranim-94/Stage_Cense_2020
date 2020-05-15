@@ -14,16 +14,16 @@ This class implement the Audio2Vec architecture
 
 class Audio2Vec(torch.nn.Module):
        
-    def __init__(self, parameters_dic):
+    def __init__(self, parameters_neural_network):
            
         super().__init__()
       
-        self.parameters_dictionary = parameters_dic
+        self.parameters_neural_network = parameters_neural_network
         
         
         self._CNN_layers_size = \
-        [parameters_dic['volume_input'],
-         *parameters_dic['list_filter_nb_per_layer']]
+        [parameters_neural_network['volume_input'],
+         *parameters_neural_network['list_filter_nb_per_layer']]
         
         '''
         Creating the CNN hidden layers:
@@ -43,7 +43,7 @@ class Audio2Vec(torch.nn.Module):
         enumerate(zip(self._CNN_layers_size,self._CNN_layers_size[1:])):
             
             
-            if index == len(parameters_dic['list_filter_nb_per_layer']) - 1:
+            if index == len(parameters_neural_network['list_filter_nb_per_layer']) - 1:
                 
                 '''
                 - We have reached the last conv layer
@@ -59,10 +59,10 @@ class Audio2Vec(torch.nn.Module):
                 
                 '''
 
-                parameters_dic['pooling_option'] = False
+                parameters_neural_network['pooling_option'] = False
 
                 conv_blokcs_list.append(conv_block_encoder(in_f, out_f, 
-                                                           parameters_dic))
+                                                           parameters_neural_network))
                 
                 
             else:
@@ -73,7 +73,7 @@ class Audio2Vec(torch.nn.Module):
                 '''
                 
                 conv_blokcs_list.append(conv_block_encoder(in_f, out_f, 
-                                                           parameters_dic))
+                                                           parameters_neural_network))
                 
 
         '''
@@ -118,8 +118,8 @@ class Audio2Vec(torch.nn.Module):
         '''
         
         self._dense_layers_size = \
-        [parameters_dic['list_filter_nb_per_layer'][-1],
-         *parameters_dic['dense_layers_list']]
+        [parameters_neural_network['list_filter_nb_per_layer'][-1],
+         *parameters_neural_network['dense_layers_list']]
         
         '''
         self._dense_layers_size[0]: contains the number
@@ -149,7 +149,7 @@ class Audio2Vec(torch.nn.Module):
         self._CNN_layers_size.reverse()
         
         
-        decoder_blokcs_list = [conv_block_decoder(in_f, out_f,parameters_dic) 
+        decoder_blokcs_list = [conv_block_decoder(in_f, out_f,parameters_neural_network) 
                        for in_f, out_f in zip(self._CNN_layers_size, 
                                               self._CNN_layers_size[1:])]
         
@@ -159,8 +159,8 @@ class Audio2Vec(torch.nn.Module):
         
         self.decoder_restore =  \
         torch.nn.Upsample(scale_factor = 
-                          parameters_dic ['scale_reconstruction'], 
-                    mode = parameters_dic['mode_upsampling'])
+                          parameters_neural_network ['scale_reconstruction'], 
+                    mode = parameters_neural_network['mode_upsampling'])
         
         
  
@@ -225,9 +225,9 @@ class Audio2Vec(torch.nn.Module):
 
         
         x = \
-        x.reshape(self.parameters_dictionary['batch_size'],
-                  1,self.parameters_dictionary['size_input'][0],
-                  self.parameters_dictionary['dense_layers_list'][-1])
+        x.reshape(self.parameters_neural_network['batch_size'],
+                  1,self.parameters_neural_network['size_input'][0],
+                  self.parameters_neural_network['dense_layers_list'][-1])
         
         
         x = self.decoder(x)

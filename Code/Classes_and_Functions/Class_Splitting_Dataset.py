@@ -4,8 +4,6 @@ import shutil
 
 import math
 
-import shutil
-
 import os
 
 import collections
@@ -47,6 +45,10 @@ class Splitting_Datasets:
                                 * ( len(list_all_numpy_files)/3) )
       
       
+        
+        '''
+        Filtering the names to get each data separately
+        '''
         size_and_files_dict['all_spec_list'] = [item for item in list_all_numpy_files 
          if item.startswith(self.__saving_location_dict ['File_Name_Spectrograms'])]
         
@@ -60,14 +62,9 @@ class Splitting_Datasets:
       
             
         
-          
-         
-        
         '''
-        Filtering the names to get each data separately
+        Sorting so we can  have matching order between all files
         '''
-        
-        
         size_and_files_dict['all_spec_list'].sort()
         
         size_and_files_dict['all_id_list'].sort()
