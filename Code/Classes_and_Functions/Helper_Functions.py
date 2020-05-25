@@ -218,6 +218,42 @@ def compute_size(parameters_dictionary):
                                height ,'and width = ', width ,'\n')
                          
                          
+                         
+def complexity(Neual_Net_model):
+    
+
+            nb_parameters = 0 
+        
+            for name,param in Neual_Net_model.named_parameters():
+                
+                
+              if param.requires_grad == True:
+                  
+                  print('--> param name is:',name,'\n')
+                  
+                  print('--> param shape is:',param.shape,'\n')
+                
+                
+              # print('--> param.shape[0]:',param.shape[0],'\n')
+              
+              
+              # print('--> param.shape[1]:',param.shape[1],'\n')
+              
+              # print('--> param.shape[2]:',param.shape[2],'\n')
+              
+              # print('--> param.shape[3]:',param.shape[3],'\n')
+              
+              # nb_parameters = nb_parameters  \
+                  
+              # + (param.shape[1] * param.shape[2] * param.shape[3] + 1) * param.shape[0]
+              
+              
+              
+            # return nb_parameters
+              
+              
+                         
+                         
                  
 
 

@@ -38,6 +38,10 @@ class SpecCense_Construction:
         
         self.__option_remove = option_remove
         
+        
+        # self.__list_all_numpy_files = \
+        # os.listdir(self.__saving_location_dict['Directory'])
+        
 
 
     def creating_sample(self):
@@ -155,11 +159,34 @@ class SpecCense_Construction:
                     self.__slicing(data_path_day,data_path_list,
                                    sensor_index, month,days)
                         
-                    print('  --> Finish slicing day # ',days,'\n')
+                    print('  --> Finish slicing day # ',days,' of sensor index'
+                          ' #', sensor_index,'\n')
                         
                     print('--------------------------- \n')
+                    
+                    
+                    # print(' --> Start Moving to External Hard Drive: \n')
+                    
+                    # self.__move_files()
+                    
+                    # print(' --> Finish Moving to External Hard Drive: \n')
+                    
+                    
                             
-                  
+          
+                    
+        print('----------------- \n \n')
+        
+        print('--> Finish All required sensors ! \n \n')
+        
+        
+        print('----------------- \n \n')
+        
+    
+        
+     
+
+    
                  
     def __create_dataset_directory(self):
         
@@ -182,7 +209,7 @@ class SpecCense_Construction:
                 
             print('- ',self.__saving_location_dict['Directory'],'\n')
             
-            os.mkdir(self.__saving_location_dict['Directory'])
+            os.makedirs(self.__saving_location_dict['Directory'])
      
             print('- Dataset Directory named '+ \
                   self.__saving_location_dict ['Directory'] + \
@@ -339,7 +366,7 @@ class SpecCense_Construction:
                     
                     
                 print('--> start index:',start,'| end index :',end,
-                      '| original_numpy_data lines is:',
+                      '| slice nb of raw is:',
                       original_numpy_data[start:end, 3:].shape[0],'\n')
                     
                 '''
@@ -379,7 +406,21 @@ class SpecCense_Construction:
                 print('  --> Shifting the slice \n')
     
     
-  
+    def __move_files(self):
+        
+        list_all_numpy_files = tuple(os.listdir(self.__saving_location_dict['Directory'])) 
+        
+        
+        for item in list_all_numpy_files:
+            
+            source_spec = self.__saving_location_dict['Directory'] + \
+            '/' + item
+            
+            
+            shutil.move(source_spec,
+                        '/media/ranim/Seagate Expansion Drive/CreatedDataset/All_Data')
+        
+        
 
 
        

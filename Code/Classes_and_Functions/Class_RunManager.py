@@ -108,7 +108,12 @@ class RunManager():
               
        def track_loss(self, loss):
               
-              self.epoch_loss += loss.item() * self.loader.batch_size
+              '''
+              This version is the loss relative to the batch size                                
+              '''             
+              # self.epoch_loss += loss.item() * self.loader.batch_size
+              
+              self.epoch_loss += loss.item()
 
      
        

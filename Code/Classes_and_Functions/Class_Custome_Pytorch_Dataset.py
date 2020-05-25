@@ -9,14 +9,17 @@ import os
 
 import random
 
+import math
+
 class Dataset_SpecSense(torch.utils.data.Dataset):
     
     
-    def __init__(self,saving_location_dict):
+    def __init__(self,saving_location_dict,data_percentage):
         
         
         self.saving_location_dict = saving_location_dict
         
+        self.__data_percentage = data_percentage
         
         '''
         Listing all the .npy files in the directory
@@ -77,7 +80,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         this method will compute the number of samples we have
         '''  
         
-        n_samples = len(self.train_spec_list)
+        n_samples = math.floor(self.__data_percentage * len(self.train_spec_list))
         
         return n_samples
  

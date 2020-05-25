@@ -20,6 +20,12 @@ class Splitting_Datasets:
         
         self.__splitting_directories_names = splitting_directories_names
         
+
+        
+        
+        
+        
+        
         
     def splitt(self):
         
@@ -29,22 +35,26 @@ class Splitting_Datasets:
         print('--> We have a total of',len(list_all_numpy_files),'.npy files \n')
         
         
+        total_per_group =  len(list_all_numpy_files)/3 
+        
+        
+        
         size_and_files_dict = collections.OrderedDict()
         
-        size_and_files_dict['training_size'] = math.floor(self.__splitting_parameters['training'] * 
-                                   ( len(list_all_numpy_files)/3) )
+        size_and_files_dict['training_size'] = \
+        math.floor(self.__splitting_parameters['training'] * total_per_group)
         
         
         size_and_files_dict['eval_size'] = \
-        math.floor(self.__splitting_parameters['eval'] * 
-                               ( len(list_all_numpy_files)/3) )
+        math.floor(self.__splitting_parameters['eval'] * total_per_group )
         
  
         size_and_files_dict['valid_size' ] = \
-            math.floor(self.__splitting_parameters['valid'] 
-                                * ( len(list_all_numpy_files)/3) )
+            math.floor(self.__splitting_parameters['valid'] * total_per_group)
       
       
+        print(size_and_files_dict['training_size'],size_and_files_dict['eval_size'],
+              size_and_files_dict['valid_size'])
         
         '''
         Filtering the names to get each data separately
@@ -82,7 +92,8 @@ class Splitting_Datasets:
         
         self.__move_files(size_and_files_dict)
         
-        
+
+
 
         
     def __create_directories(self):
@@ -105,17 +116,20 @@ class Splitting_Datasets:
                         
                 '''
                 Creating directory
-                '''  
+                ''' 
+                
+                
                 os.mkdir(self.__splitting_directories_names[key])
                  
                 print('- Dataset Directory named '+ \
-                     self.__splitting_directories_names[key] + 'is created\n')
+                     self.__splitting_directories_names[key] + ' is created\n')
                     
                     
                     
     def __move_files(self,size_and_files_dict):
         
         
+        print('--> Start Transferring Training set \n')
   
         for i in range(size_and_files_dict['training_size']):
             
@@ -125,7 +139,8 @@ class Splitting_Datasets:
             shutil.move(source_spec,
                         self.__splitting_directories_names['train_directory_name'])
             
-            
+     
+        
             source_spec = self.__saving_location_dict['Directory'] + \
             '/' + size_and_files_dict['all_time_stamp_list'][i]   
            
@@ -140,7 +155,11 @@ class Splitting_Datasets:
                         self.__splitting_directories_names['train_directory_name'])
             
             
-            
+        print('--> Finish Transferring Training set \n')    
+        
+        print('############################################# \n \n')
+
+        print('--> Start Transferring Eval set \n')        
             
         for i in range(size_and_files_dict['eval_size']):
             
@@ -168,7 +187,11 @@ class Splitting_Datasets:
             shutil.move(source_spec,
                         self.__splitting_directories_names['eval_directory_name'])
             
-            
+        print('--> Finish Transferring Eval set \n')    
+        
+        print('############################################# \n \n')
+
+        print('--> Start Transferring Valid set \n')      
             
             
         for i in range(size_and_files_dict['valid_size']):
@@ -198,7 +221,11 @@ class Splitting_Datasets:
                         self.__splitting_directories_names['valid_directory_name'])
          
          
-         
+        print('--> Finish Transferring Valid set \n')    
+        
+        print('############################################# \n \n')
+
+       
             
             
             

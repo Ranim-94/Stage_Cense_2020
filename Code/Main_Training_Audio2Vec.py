@@ -13,9 +13,6 @@ Experimenting on Audio2Vec
 import torch
 
 
-
-
-
 from collections import OrderedDict
 
 from Classes_and_Functions.Class_Neural_Network_Training import \
@@ -29,10 +26,28 @@ log_CNN_layers,compute_size
 
 
 # Specifying the prams we want to test
+'''
+The parameters should be entered in a list 
+'''
 params_to_try = OrderedDict(
-    batch_size = [500,800],
-    epoch_times = [1], 
-    shuffle = [True]
+    
+    batch_size = [70],
+    
+    data_percentage = [0.5 , 0.25],
+    
+    # percentage of data we need to test
+    
+    
+    nb_of_epoch = [1],
+    
+    # we set it to 1 so we can ensure if nb_of_iter > nb batch we 
+    # reprocess again the batches till we reach nb_of_iter
+    
+    
+    nb_of_iter = [20], # rquired nb of iteration ,
+    # it is independent of batch size or nb of epoch
+    
+    shuffle = [False]
 )
 
 
@@ -97,11 +112,15 @@ parameters_neural_network = {
        }
 
 
-
+'''
+/media/ranim/Seagate Expansion Drive/Training_Set
+'''
 
 saving_location_dict = {
     
-    'Directory': 'Training_Set',
+    # 'Directory': 'Training_Set',
+    
+    'Directory': 'CreatedDataset/Training_Set',
         
     'File_Name_Spectrograms':'train_spec_',
     
@@ -132,7 +151,14 @@ optimization_option = {
 
 
 
-show_trace = True
+show_trace = False
+
+
+
+
+
+
+#********************* Start Trainining *******************************8
 
 
 set_train = Neural_Network_Training(optimization_option,parameters_neural_network,

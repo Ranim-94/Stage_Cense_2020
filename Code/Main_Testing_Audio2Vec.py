@@ -16,9 +16,9 @@ import numpy as np
 from Classes_and_Functions.Class_Audio2Vec import Audio2Vec
 
 from Classes_and_Functions.Helper_Functions import \
-log_CNN_layers,compute_size
+log_CNN_layers,compute_size,complexity
 
-from Classes_and_Functions.Class_Custome_Dataset import Dataset_SpecSense
+from Classes_and_Functions.Class_Custome_Pytorch_Dataset import Dataset_SpecSense
 
 
 '''
@@ -81,7 +81,9 @@ parameters_dic = {
 
 saving_location_dict = {
     
-    'Directory': 'Training_Set',
+     'Directory': 'Training_Set',
+    
+    # 'Directory': '/media/ranim/Seagate Expansion Drive/Training_Set',
         
     'File_Name_Spectrograms':'train_spec_',
     
@@ -134,17 +136,28 @@ net_1 = Audio2Vec(parameters_dic)
 
 
 
-print('-- > Testing forward propagation through encoder part \n')
+# print('-- > Testing forward propagation through encoder part \n')
 
-# Testing Forward Pass
-pred, embedding = net_1(sample)
+# # Testing Forward Pass
+# pred, embedding = net_1(sample)
 
-print('--> Prediction shape is',pred.shape,'\n')
-
-
-print('--> Embedding shape is:',embedding.shape,'\n')
+# print('--> Prediction shape is',pred.shape,'\n')
 
 
+# print('--> Embedding shape is:',embedding.shape,'\n')
+
+
+
+
+nb_parameters = complexity(net_1)
+
+
+
+pytorch_total_params = sum(p.numel() for p in net_1.parameters() 
+                           if p.requires_grad)
+
+
+print('--> nb of parameters is:',pytorch_total_params,'\n')
 
 
 # print('----------- Audio2Vec Architecture -------------- \n')
