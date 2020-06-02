@@ -12,6 +12,7 @@ Experimenting on Audio2Vec
 
 import torch
 
+import math
 
 from collections import OrderedDict
 
@@ -31,22 +32,22 @@ The parameters should be entered in a list
 '''
 params_to_try = OrderedDict(
     
-    batch_size = [70],
+    batch_size = [20],
     
-    data_percentage = [0.5 , 0.25],
     
     # percentage of data we need to test
     
+    # data_percentage = [6,12,50,100],
     
-    nb_of_epoch = [1],
-    
-    # we set it to 1 so we can ensure if nb_of_iter > nb batch we 
-    # reprocess again the batches till we reach nb_of_iter
-    
-    
-    nb_of_iter = [20], # rquired nb of iteration ,
+    data_percentage = [25,50],
+
+    # rquired nb of iteration ,
     # it is independent of batch size or nb of epoch
+    nb_of_iter = [ 2 * int(math.pow(10,1)) - 1 ], 
     
+    # the -1 because python start counting from 0
+    
+
     shuffle = [False]
 )
 
@@ -120,7 +121,7 @@ saving_location_dict = {
     
     # 'Directory': 'Training_Set',
     
-    'Directory': 'CreatedDataset/Training_Set',
+    'Directory': 'CreatedDataset/Training_Set_50_57',
         
     'File_Name_Spectrograms':'train_spec_',
     
@@ -151,7 +152,7 @@ optimization_option = {
 
 
 
-show_trace = False
+show_trace = True
 
 
 
