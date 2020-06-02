@@ -150,10 +150,11 @@ class Neural_Network_Training:
                          device):
            
            
-            nb_of_iter , actual_iter = run.nb_of_iter , 0
+            nb_of_iter , actual_iter = run.nb_of_iter - 1 , 0
             
             '''
             nb_of_iter : required nb of iteration
+                - I have put -1 because I start counting from 0
             
             In Audio2vec paper: nb_of_iter = 3 million 
             '''

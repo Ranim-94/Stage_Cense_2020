@@ -43,9 +43,7 @@ params_to_try = OrderedDict(
 
     # rquired nb of iteration ,
     # it is independent of batch size or nb of epoch
-    nb_of_iter = [ 2 * int(math.pow(10,1)) - 1 ], 
-    
-    # the -1 because python start counting from 0
+    nb_of_iter = [ 2 * int(math.pow(10,1)) ], 
     
 
     shuffle = [False]
