@@ -3,6 +3,8 @@ import torch
 
 import math
 
+import numpy as np
+
 from Classes_and_Functions.Class_Custome_Pytorch_Dataset import \
 Dataset_SpecSense
 
@@ -48,12 +50,22 @@ class Neural_Network_Training:
               
               
               '''
-              Setting the GPU name
+              Setting the GPU name or CPU 
               '''
               
-              GPU_device = torch.device("cuda:0")
-              
+              if torch.cuda.is_available() == True:
 
+                  device = torch.device("cuda:0")
+                  
+              else:
+                 
+                 device = torch.device("cpu")
+                 
+                 
+              
+              '''
+              Start testing for different combination of parameters
+              '''      
               for run in RunBuilder.get_runs(self.params_to_try):
                                
                   if self.show_trace == True:
@@ -93,7 +105,9 @@ class Neural_Network_Training:
                   '''
                   Moving the model (the model weights) to the GPU
                   '''
-                  net_1.to(GPU_device)
+                  
+                  
+                  net_1.to(device)
                       
                   
                   '''
@@ -115,17 +129,14 @@ class Neural_Network_Training:
                   Start training loop
                   '''
                   
-                  self.__start_epoch(run,train_loader,manager_object,
-                                     net_1,GPU_device)
+                  self.__start_train(run,train_loader,manager_object,
+                                     net_1,device)
                  
   
-                  # End Block for epoch in range
-                  # manager_object.end_run()
-              
-              
-              
                             
-             # End Block for run in RunBuilder.get_runs(params) 
+              '''
+              Save the results for all combinations
+              ''' 
               manager_object.save('Results')
               
               print('********************************* \n')
@@ -135,8 +146,8 @@ class Neural_Network_Training:
               print('********************************* \n')
               
               
-       def __start_epoch(self,run,train_loader,manager_object,net_1,
-                         GPU_device):
+       def __start_train(self,run,train_loader,manager_object,net_1,
+                         device):
            
            
             nb_of_iter , actual_iter = run.nb_of_iter , 0
@@ -146,18 +157,12 @@ class Neural_Network_Training:
             
             In Audio2vec paper: nb_of_iter = 3 million 
             '''
-            
+
             while actual_iter < nb_of_iter:
                 
-
-                for epoch in range(run.nb_of_epoch):
-                          
-                             manager_object.begin_epoch()
-                             
     
                              for count,batch in enumerate(train_loader):
                                  
-  
                                     if self.show_trace == True:
                                         
                                         print('--> batch #',count,'\n') 
@@ -168,10 +173,9 @@ class Neural_Network_Training:
                                     '''
                                     Moving the Data to GPU
                                     '''
-                                    
-                                    sample , labels = sample.to(GPU_device), \
-                                    labels.to(GPU_device)
-                                    
+     
+                                    sample , labels = sample.to(device), \
+                                    labels.to(device)
                                     
                                     
                                     '''
@@ -194,11 +198,20 @@ class Neural_Network_Training:
                                     # Pass a batch , do forward propagation
                                     preds , _ = net_1(sample)
                                     
+                                    # here we count +1 iteration
                                     actual_iter += 1
+                                    
+                                    '''
+                                    Also I count here because the number of iterations
+                                    I will put in the pandas data frame bulided in 
+                                    the RunManager Class
+                                    '''
+                                    manager_object.begin_iter()
                                     
                                     if self.show_trace == True:
                                     
-                                        print('--> Prediction shape is:',preds.shape,'\n')
+                                        print('--> Prediction shape is:',preds.shape,
+                                              '| Actual Iteration is :',actual_iter,'\n')
                              
         
                              
@@ -227,7 +240,8 @@ class Neural_Network_Training:
                                     
                                     '''
                              
-                                    # Computing the gradient
+                                    # Computing the gradient of the loss with
+                                    # % to network weights
                              
                                     loss.backward()
                              
@@ -235,29 +249,24 @@ class Neural_Network_Training:
                              
                                     self.optimization_option['optimizer'].step()
                                     
-                                    manager_object.track_loss(loss)
-                      
-                                    '''
-                                    End 1 epoch
-                                    '''
-                
-                                    manager_object.end_epoch()
-                 
                                     
-                 
-                if actual_iter > nb_of_iter:
-                    break
-                 
-                '''
-                Also we need to break from the outer loop 
-                which deals with the epoch (the whole dataset)
-                '''    
-
-                   
-                '''
-                End All Epoch
-                '''                    
-                manager_object.end_run()
+                                    '''
+                                    1) Recompute the loss after upadting the weights
+                                    
+                                    2) extract it as a python float number using the
+                                    
+                                    item() method
+                                    
+                                    3) Also I save this result in the results
+                                        dictonary created inisde Class_RunManager 
+                                    
+                                    '''
+                                    manager_object.end_iter(loss.item())
+                      
+            '''
+            Particular Combination has finished
+            '''                   
+            manager_object.end_run()
            
            
            
