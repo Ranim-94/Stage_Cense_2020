@@ -80,7 +80,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         this method will compute the number of samples we have
         '''  
         
-        n_samples = math.floor(self.__data_percentage * len(self.train_spec_list))
+        n_samples = math.floor(self.__data_percentage * math.pow(10,-2) * len(self.train_spec_list))
         
         return n_samples
  
