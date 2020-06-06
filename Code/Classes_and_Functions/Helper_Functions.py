@@ -3,7 +3,7 @@ import torch
 
 import math
 
-
+import os
 
 
 def get_num_correct(preds,labels):
@@ -253,6 +253,54 @@ def complexity(Neual_Net_model):
               
               
                          
+def count_sensors(saving_location_dict):
+    
+    list_all_numpy_files = os.listdir(saving_location_dict['Directory'])
+     
+    '''
+    Filtering the names to get each data separately
+    '''
+    list_sensor_name  = [item for item in list_all_numpy_files 
+    if item.startswith(saving_location_dict ['File_Name_sensor_id'])]
+    
+    
+    sliced = len('train_id_xx')  
+    
+    # removing the time information month_day_slice_Nb
+    for counter,names in enumerate(list_sensor_name) :
+        
+        list_sensor_name[counter] = \
+        names.replace(names,names[:sliced])
+    
+    
+    '''
+    Creating an empty dictionary for counting
+    '''
+    
+    count_sensor = {}
+    
+    '''
+    Creating the counting
+    '''
+    for names in list_sensor_name:
+        
+        if names in count_sensor:
+            
+            count_sensor[names] += 1
+            
+        else:
+            
+            count_sensor[names] = 1
+    
+    
+    return count_sensor
+    
+    
+    
+    
+    
+
+
                          
                  
 
