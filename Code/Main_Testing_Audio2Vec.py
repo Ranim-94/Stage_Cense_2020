@@ -77,11 +77,11 @@ parameters_dic = {
        }
 
 
-
+data_percentage = 25
 
 saving_location_dict = {
     
-     'Directory': 'Training_Set',
+     'Directory': 'CreatedDataset/Training_Set_50_57',
     
     # 'Directory': '/media/ranim/Seagate Expansion Drive/Training_Set',
         
@@ -98,7 +98,7 @@ saving_location_dict = {
 Loading Data: Instantiate
 '''
 
-dataset_instance = Dataset_SpecSense(saving_location_dict)
+dataset_instance = Dataset_SpecSense(saving_location_dict,data_percentage)
 
 
 # this will give us an iterable object
@@ -114,10 +114,10 @@ sample,label = next(iter(train_loader))
 
 
 
-print('- Sample shape is :',sample.shape,'\n')
+print('---> Sample shape is :',sample.shape,'\n')
 
 
-print('- Label shape is :',label.shape,'\n')
+print('---> Label shape is :',label.shape,'\n')
 
 
 
@@ -136,28 +136,28 @@ net_1 = Audio2Vec(parameters_dic)
 
 
 
-# print('-- > Testing forward propagation through encoder part \n')
+print('-- > Testing forward propagation through encoder part \n')
 
-# # Testing Forward Pass
-# pred, embedding = net_1(sample)
+# Testing Forward Pass
+pred, embedding = net_1(sample)
 
-# print('--> Prediction shape is',pred.shape,'\n')
-
-
-# print('--> Embedding shape is:',embedding.shape,'\n')
+print('--> Prediction shape is',pred.shape,'\n')
 
 
-
-
-nb_parameters = complexity(net_1)
+print('--> Embedding shape is:',embedding.shape,'\n')
 
 
 
-pytorch_total_params = sum(p.numel() for p in net_1.parameters() 
-                           if p.requires_grad)
+
+# nb_parameters = complexity(net_1)
 
 
-print('--> nb of parameters is:',pytorch_total_params,'\n')
+
+# pytorch_total_params = sum(p.numel() for p in net_1.parameters() 
+#                            if p.requires_grad)
+
+
+# print('--> nb of parameters is:',pytorch_total_params,'\n')
 
 
 # print('----------- Audio2Vec Architecture -------------- \n')

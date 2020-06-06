@@ -39,11 +39,11 @@ params_to_try = OrderedDict(
     
     # data_percentage = [6,12,50,100],
     
-    data_percentage = [25,50],
+    data_percentage = [25],
 
     # rquired nb of iteration ,
     # it is independent of batch size or nb of epoch
-    nb_of_iter = [ 2 * int(math.pow(10,1)) ], 
+    nb_of_iter = [ 20 * int(math.pow(10,1)) ], 
     
 
     shuffle = [False]
