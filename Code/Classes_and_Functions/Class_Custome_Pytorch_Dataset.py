@@ -42,18 +42,16 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
 
         
         '''
-        Chosing some sample and directly turn it into a Pytorch Tensor
-        '''
-        sample_original = \
-        torch.from_numpy(np.load(self.saving_location_dict['Directory'] +
-                                 '/' + self.train_spec_list[index])).float()
+        Chosing some sample in memory mapping mode
         
+            - self.saving_location_dict['Directory'] = path of the data 
+            
+        Memory Mapping allow efficient accessing a file or a portion
+        of a file without 
         '''
-        The casting .float() is because numpy use float64 as their default type
-
-        We need to cast the tensor to double so the data and the model
-        have same data type
-        '''
+        
+        sample_original = np.load(self.saving_location_dict['Directory'] +
+                            '/' + self.train_spec_list[index] , mmap_mode = 'r')
         
         
         '''
@@ -64,12 +62,31 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
 
         num1 = random.randint(start,finish)
         
+        # this the middle frame
+        label_np = sample_original[num1,:].copy()
         
-        label = sample_original[num1,:].clone().reshape(-1,29).unsqueeze(0)
         
-        sample = sample_original[num1 - 2 : 
-                          num1 + 2,:].clone().unsqueeze(0)
+        # the past and the future frames
+        sample_np = sample_original[num1 - 2 : num1 + 2,:].copy()
+        
             
+        # turning numpy array into pythorch tensors    
+        sample, label = torch.from_numpy(sample_np).float() , \
+        torch.from_numpy(label_np).float()
+         
+        '''
+        The casting .float() is because numpy use float64 as their default type
+
+        We need to cast the tensor to double so the data and the model
+        have same data type
+        '''
+        
+        # turning into a batch format [volume, height, width]
+        label = label.reshape(-1,29).unsqueeze(0)
+        
+        sample = sample.unsqueeze(0)
+        
+
             
         return sample,label
     
@@ -80,7 +97,8 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         this method will compute the number of samples we have
         '''  
         
-        n_samples = math.floor(self.__data_percentage * math.pow(10,-2) * len(self.train_spec_list))
+        n_samples = math.floor(self.__data_percentage * math.pow(10,-2) \
+                               * len(self.train_spec_list))
         
         return n_samples
  
