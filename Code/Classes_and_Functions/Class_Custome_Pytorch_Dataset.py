@@ -79,16 +79,30 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
     
         num1 = random.randint(start,finish)
             
+        # taking past slice    
+        past_slice = sample_original[num1 - 2: num1,:].copy()
             
-        past_slice = sample_original[num1 - 2: num1].copy()
-            
-        future_slice = sample_original[num1 + 1 : num1 + 3].copy()
+        
+        # taking future slice
+        future_slice = sample_original[num1 + 1 : num1 + 3,:].copy()
+        
+
             
         # putting the past and the future to be processed 
         sample_np =  np.vstack((past_slice,future_slice))
+        
+        # In case of debuging uncomment these print() statments
+        
+        # print(f'start: {start} | finish: {finish} | num1: {num1} \n')
+        
+
+        # print(f'--> past_slice shape is: {past_slice.shape} \n',
+        #       f'--> future_slice shape is: {future_slice.shape}')
 
         
-  
+        # print(f'--> sample_np shape: {sample_np.shape} \n')
+        
+        
 
         if self.mode == 'pretext_task':
             
