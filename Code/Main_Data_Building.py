@@ -1,24 +1,17 @@
 
-
-
 import math
 
 import os
 
 import collections
 
-from Classes_and_Functions.Class_Data_Building \
-import SpecCense_Construction
-
-
+from Classes_and_Functions.Class_Data_Building import SpecCense_Construction
 
 
 '''
 list containing sensor names
 '''
 list_sensor_name = os.listdir('Data_Set/')
-
-
 
 
 '''
@@ -38,10 +31,14 @@ od2 = collections.OrderedDict()
 
 '''
 Processing:
-    - 40 --> 46
+    - 50,56
+ 
+    
+Time: we are doing by week:
+    - 1 --> 8
 '''
 
-od2['list_sensor_index'] = [v for v in range(40,46)]
+od2['list_sensor_index'] = [v for v in range(50,57)]
 
 # od2['list_sensor_index'] = [0]
 
