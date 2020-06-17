@@ -141,11 +141,14 @@ class Splitting_Datasets_by_sensor:
         for key in count_sensor.keys():
             
             count_sensor_train_eval_valid[key] = \
-            { 'train_nb':math.floor(count_sensor[key] * self.__splitting_parameters['training']),
+            { 'train_nb':math.floor(count_sensor[key] * 
+                                    self.__splitting_parameters['training']),
                 
-              'eval_nb':math.floor(count_sensor[key] * self.__splitting_parameters['eval']),      
+              'eval_nb':math.floor(count_sensor[key] * 
+                                   self.__splitting_parameters['eval']),      
                 
-              'valid_nb':math.floor(count_sensor[key] * self.__splitting_parameters['valid'])
+              'valid_nb':math.floor(count_sensor[key] * 
+                                    self.__splitting_parameters['valid'])
         
              } 
                 
@@ -213,17 +216,20 @@ class Splitting_Datasets_by_sensor:
         
                 source = f"{self.__saving_location_dict['Directory']}/{list_id[i]}"
                 
-                shutil.move(source,self.__splitting_directories_names['train_directory_name'])
+                shutil.move(source,
+                            self.__splitting_directories_names['train_directory_name'])
                 
                 
                 source = f"{self.__saving_location_dict['Directory']}/{list_spectrogram[i]}"
                 
-                shutil.move(source,self.__splitting_directories_names['train_directory_name'])
+                shutil.move(source,
+                            self.__splitting_directories_names['train_directory_name'])
                 
                 
                 source = f"{self.__saving_location_dict['Directory']}/{list_time_stamp[i]}"
                 
-                shutil.move(source,self.__splitting_directories_names['train_directory_name'])
+                shutil.move(source,
+                            self.__splitting_directories_names['train_directory_name'])
                 
                 
                 

@@ -22,6 +22,5 @@ class RunBuilder():
                      
                      runs.append(Run(*v))
                      
-                     
-              
+
               return runs

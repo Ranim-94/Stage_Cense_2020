@@ -21,25 +21,33 @@ class Splitting_Datasets:
         self.__splitting_directories_names = splitting_directories_names
         
 
-        
-        
-        
-        
-        
-        
+
     def splitt(self):
         
-        
+        # Counting all the files in the total data directory and store the names
+        # in a list
         list_all_numpy_files = os.listdir(self.__saving_location_dict['Directory'])
 
         print('--> We have a total of',len(list_all_numpy_files),'.npy files \n')
         
         
+        
+        '''
+        We divide by 3 since we have
+            - train_id_xx --> sensor index
+            - train_time_stamp_xx --> time stamp measurements
+            - train_spec_xx --> sepctrograms for tiers d'octaves
+        '''
         total_per_group =  len(list_all_numpy_files)/3 
         
         
         
         size_and_files_dict = collections.OrderedDict()
+        
+        '''
+        Setting the number of splitting:
+            - 70 % for training --> how many files we will take
+        '''
         
         size_and_files_dict['training_size'] = \
         math.floor(self.__splitting_parameters['training'] * total_per_group)
@@ -57,7 +65,7 @@ class Splitting_Datasets:
               size_and_files_dict['valid_size'])
         
         '''
-        Filtering the names to get each data separately
+        Filtering the names to get each data separately in lists
         '''
         size_and_files_dict['all_spec_list'] = [item for item in list_all_numpy_files 
          if item.startswith(self.__saving_location_dict ['File_Name_Spectrograms'])]
@@ -81,6 +89,10 @@ class Splitting_Datasets:
         
         size_and_files_dict['all_time_stamp_list'].sort()
         
+        
+        '''
+        Counting the distribution of the sensors
+        '''
 
            
         '''
@@ -94,8 +106,6 @@ class Splitting_Datasets:
         
 
 
-
-        
     def __create_directories(self):
             
          

@@ -1,6 +1,7 @@
 
 
 
+# ------------------------ Importing -----------------------------------
 
 
 from Classes_and_Functions.Class_Splitting_Dataset_by_sensor import \
@@ -8,7 +9,17 @@ Splitting_Datasets_by_sensor
 
 
 
+#---------------------------------------------------------------------------------
+
+
+
 #*************** Sepcify Different parameters for splitting the data *************
+
+'''
+In this part, we construct train/eval/test for all the data sets
+
+so for 100 % of the available data
+'''
 
 
 saving_location_dict = {
@@ -31,14 +42,9 @@ saving_location_dict = {
 
 
 
-
-
 '''
-Dictionary to specify the percentage
-of splitting
+Dictionary to specify the percentage of splitting
 '''
-
-
 splitting_parameters = {'training':0.7,'eval':0.2,'valid':0.1}
     
     
@@ -83,6 +89,27 @@ splitt_instance.splitt()
 
 
  
+
+
+
+
+
+
+
+ 
+        
+    
+    
+
+        
+        
+        
+
+
+
+
+
+
         
     
     

@@ -1,18 +1,19 @@
 
 
+
+
+
 import torch
 
-
-
 from Classes_and_Functions.Helper_Functions import conv_block_encoder,\
-dense_block, conv_block_decoder
+dense_block
 
 
 '''
 This class implement the Audio2Vec architecture
 '''
 
-class Audio2Vec(torch.nn.Module):
+class My_Calssifier_Encoder(torch.nn.Module):
        
     def __init__(self, parameters_neural_network):
            
@@ -132,37 +133,15 @@ class Audio2Vec(torch.nn.Module):
                                               self._dense_layers_size[1:])]
                        
         self.dense_part = torch.nn.Sequential(*dense_blokcs_list)
+        
+        
+        
+        # output layer
+        self.last = torch.nn.Linear(self._dense_layers_size[-1], 
+                              self.parameters_neural_network['n_classes']) 
 
  
-#------------------------------ Decoder Part ---------------------------
 
-        
-        '''
-        Setting the input channel to 1 for the decoder part
-        '''
-
-        self._CNN_layers_size[-1] = 1
-        
-        '''
-        Reversing the order of the layers for the Decoder Part
-        '''
-        self._CNN_layers_size.reverse()
-        
-        
-        decoder_blokcs_list = [conv_block_decoder(in_f, out_f,parameters_neural_network) 
-                       for in_f, out_f in zip(self._CNN_layers_size, 
-                                              self._CNN_layers_size[1:])]
-        
-  
-        self.decoder = torch.nn.Sequential(*decoder_blokcs_list)
-        
-        
-        self.decoder_restore =  \
-        torch.nn.Upsample(scale_factor = 
-                          parameters_neural_network ['scale_reconstruction'], 
-                    mode = parameters_neural_network['mode_upsampling'])
-        
-        
  
 
 
@@ -170,16 +149,18 @@ class Audio2Vec(torch.nn.Module):
       
         
     def forward(self, x):
+  
+        '''
+        In case you want to test forward propagation
+        method, uncomment the print() statements
+        '''
         
-        
-        
-        # print(f'X shape before encoder: {x.shape} \n')
+        # print(f'--> X shape before encoder is: {x.shape} \n')
         
         # Forward Propagation in all CNN layers   
         x = self.encoder(x)
         
-        
-        # print(f'X shape before encoder: {x.shape} \n')
+        # print(f'--> X shape after encoder is: {x.shape} \n')
 
         '''
         - Reaching the linear part:
@@ -189,7 +170,9 @@ class Audio2Vec(torch.nn.Module):
         x = torch.nn.functional.max_pool2d(x,
         kernel_size = (1,x.shape[3]) )
         
-        # print(f'X shape after maxpooling: {x.shape} \n')
+        
+        # print(f'--> X shape after maxpooling is: {x.shape} \n')
+        
         
         '''
         Since we have input all frames (2 of the past and 2 of the future)
@@ -213,43 +196,53 @@ class Audio2Vec(torch.nn.Module):
         '''
         x = x.reshape(-1, self._dense_layers_size[0])
         
-        # print(f'X shape after reshape: {x.shape} \n')
+        '''
+        Important Note:
+        ----------------    
+        
+        In the case of Sensor classification, the reshaping
+        for processing through the dense part is different than
+        pretext task in spectrogram reconstruction.
+        
+        
+        Here, we only want the proababilty distribution of the sensors
+        
+        which is encoded by the batch size, we don't want to input
+        all the frame for reconstuction as we did in the pretext task
+        '''
+        
+        
+        
+        # print(f'--> X shape after reshaping is: {x.shape} \n')
+        
 
         # Proessing in the dense layers part
         x = self.dense_part(x)
         
-        # print(f'X shape after dense: {x.shape} \n')
+        # print(f'--> X shape after dense is: {x.shape} \n')
         
-        '''
-        Storing the embedding results in a variable 
-        so we can take and use it later in the downstream task
-        '''
-        embedding = x.clone()
-        
-        
-        # Start Processing through the Decoder
-        
-        '''
-        First we need to adjust again the format of the tensor
-        to a rank 4 tensor
-        '''
 
+        # Passing throught the output layer
+        x = self.last(x)
         
-        x = \
-        x.reshape(self.parameters_neural_network['batch_size'],
-                  1,self.parameters_neural_network['size_input'][0],
-                  self.parameters_neural_network['dense_layers_list'][-1])
+        '''
+        The shape of x will be: nb of batches x nb of sensors 
+        to be classified
+        
+        Example: x.shape = torch.Size([80,7])
+        
+        where: we have 80  frames (so 20 x 4)
+        
+        and 7 is the probability distribution of the sensors produced
+        later by softmax
+        
+        '''
         
         
-        # print(f'X shape after reshape for decoder: {x.shape} \n')
-        
-        x = self.decoder(x)
-        
-        x = self.decoder_restore(x)
-        
-        # print(f'X shape after restored: {x.shape} \n')
-
+        # print(f'--> X shape after output layer is: {x.shape} \n')
+   
         return x
+ 
        
  
   

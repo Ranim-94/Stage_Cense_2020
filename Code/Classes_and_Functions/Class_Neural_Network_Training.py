@@ -3,7 +3,7 @@ import torch
 
 import math
 
-import numpy as np
+
 
 from Classes_and_Functions.Class_Custome_Pytorch_Dataset import \
 Dataset_SpecSense
@@ -14,14 +14,15 @@ from Classes_and_Functions.Class_RunManager import RunManager
 
 from Classes_and_Functions.Class_RunBuilder import RunBuilder
 
-
+from Classes_and_Functions.Class_Sensor_Classification import My_Calssifier_Encoder
 
 
 class Neural_Network_Training:
        
        
        def __init__(self,optimization_option,parameters_neural_network,
-                    saving_location_dict,params_to_try,show_trace):
+                    saving_location_dict,params_to_try,show_trace,model_names,
+                    mode):
               
               '''
               this is the neural network model implemented in its
@@ -38,8 +39,16 @@ class Neural_Network_Training:
               self.saving_location_dict = saving_location_dict
 
               self.show_trace = show_trace
+
+              self.mode = mode
+              '''
+              To choose whether we do sensor classification
+              or pretext task
+              '''
               
-       
+              self.model_names = model_names
+        
+        
        def training(self):
            
               
@@ -61,51 +70,85 @@ class Neural_Network_Training:
                  
                  device = torch.device("cpu")
                  
-                 
+               
+              '''
+              Sepcify which task we are using this class
+              so we can define the correspondant objective function
+              '''  
+              if self.mode == 'pretext_task':
+                      
+                      objective_function = \
+                      self.optimization_option['Objective_Function_reconstruction']
+                      
+              elif self.mode == 'sensor_classification':
+                      
+                      objective_function = \
+                      self.optimization_option['Objective_Function_sensor_classification'] 
+                
               
               '''
               Start testing for different combination of parameters
               '''      
-              for run in RunBuilder.get_runs(self.params_to_try):
-                               
-                  if self.show_trace == True:
-                      
-                      print('--> Testing Combination of:',run,'\n')
+              for count_run,run in enumerate(RunBuilder.get_runs(self.params_to_try)) :
+
+                  
+                  print(f'--> # Run {count_run} | Testing Combination of: {run} \n')
                       
                   
+                  '''
+                  Setting the correspondant directory for the 
+                  specific data perecentage we are using for training
+                  '''
+                  
+                  self.saving_location_dict['Directory'] = \
+                     f'CreatedDataset/Training_Set_{run.data_percentage}'
+                    
+                    
                    # this will give us an iterable object
                   train_loader = \
                   torch.utils.data.DataLoader(dataset = 
-                  Dataset_SpecSense(self.saving_location_dict,run.data_percentage), 
+                  Dataset_SpecSense(self.saving_location_dict,self.mode), 
                   
                   batch_size = run.batch_size,shuffle = run.shuffle) 
                   
                   
-                  
-                  print('--> len(train_loader):',len(train_loader),'\n')
-                  
-                  '''
-                  Adding a key named batch size:
+                      
+                  if self.mode == 'pretext_task':
+                      
+                      '''
+                      Adding a key named batch size:
                         - this is due to 2 resons:
                                1) we are testing training for several batch size
                                2) Audio2Vec implementation in the forward() 
                                   depends on the batch size
                                3) so for each batch size choice, we have a different
                                   model to test
+                      '''
+                      
+                      
+                      self.parameters_neural_network['batch_size'] = run.batch_size
+                      
+                      # Creating the Neural Network instance for pretext task
+                      net_1 = Audio2Vec(self.parameters_neural_network)
+                      
+                      name = self.model_names['embedding']
+                      
+                      
+                      
+                  elif self.mode == 'sensor_classification':
+                      
+                      
+                      self.parameters_neural_network['batch_size'] = run.batch_size
 
-                  '''
+                      net_1 = My_Calssifier_Encoder(self.parameters_neural_network)
+                      
+                      name = self.model_names['classification_no_embedding']
+                      
 
-                  self.parameters_neural_network['batch_size'] = run.batch_size
-
-                  
-                  # Creating the Neural Network instance
-                  net_1 = Audio2Vec(self.parameters_neural_network)
-                  
                   
                   '''
                   Moving the model (the model weights) to the GPU
                   '''
-                  
                   
                   net_1.to(device)
                       
@@ -129,8 +172,12 @@ class Neural_Network_Training:
                   Start training loop
                   '''
                   
-                  self.__start_train(run,train_loader,manager_object,
-                                     net_1,device)
+                  self.__start_train(count_run,run,train_loader,manager_object,
+                                     net_1,device,objective_function)
+                  
+                  
+                  # Saving the weigths when finish training for a certain run
+                  torch.save(net_1.state_dict(), f'Results/{name}_{run.data_percentage}.pth')
                  
   
                             
@@ -146,8 +193,8 @@ class Neural_Network_Training:
               print('********************************* \n')
               
               
-       def __start_train(self,run,train_loader,manager_object,net_1,
-                         device):
+       def __start_train(self,count_run,run,train_loader,manager_object,net_1,
+                         device,objective_function):
            
            
             nb_of_iter , actual_iter = run.nb_of_iter - 1 , 0
@@ -166,10 +213,12 @@ class Neural_Network_Training:
                                  
                                     if self.show_trace == True:
                                         
-                                        print('--> batch #',count,'\n') 
+                                        print(f'--> batch # {count} \n') 
                                     
                                     # unpacking
                                     sample , labels = batch 
+                                    
+                                    # print(f' --> labels shape: {labels.shape} \n')
                                     
                                     '''
                                     Moving the Data to GPU
@@ -184,20 +233,27 @@ class Neural_Network_Training:
                                     we break from the internal for loop
                                     which process the batches
                                     '''
-                                    if actual_iter > nb_of_iter:
+                                    if actual_iter > nb_of_iter or \
+                                    sample.shape[0] != run.batch_size:
                                         break
                                     
-                                    if sample.shape[0] != run.batch_size:
-                                        break
+                                    
+                                        
                                     
                                     if self.show_trace == True:
                                     
-                                        print('-->Sample shape is:',sample.shape,
-                                          '| Labels shape is:',labels.shape,'\n')
+                                        print(f'-->Sample shape is: {sample.shape}',
+                                          f'| Labels shape is: {labels.shape} \n')
                              
                              
                                     # Pass a batch , do forward propagation
-                                    preds , _ = net_1(sample)
+                                    preds  = net_1(sample)
+                                    
+                                    
+                                    if self.show_trace == True:
+                                    
+                                        print(f'--> preds shape: {preds.shape} \n', 
+                                          f'{preds} \n')
                                     
                                     # here we count +1 iteration
                                     actual_iter += 1
@@ -209,17 +265,24 @@ class Neural_Network_Training:
                                     '''
                                     manager_object.begin_iter()
                                     
-                                    if self.show_trace == True:
+                                    print(f'# Current Iteration is {actual_iter}' ,
+                                          f' for run # {count_run}\n')
                                     
-                                        print('--> Prediction shape is:',preds.shape,
-                                              '| Actual Iteration is :',actual_iter,'\n')
-                             
-        
-                             
-                                     # Compute the loss
-                                    loss = \
-                                    self.optimization_option['Objective_Function'](preds,labels)
-                                    
+
+                                    if self.mode == 'sensor_classification':
+                                        
+                                        # Compute the loss
+                                        loss = \
+                                        objective_function(preds,labels.reshape(-1))
+                                        
+                                        
+                                    elif self.mode == 'pretext_task':
+                                        
+                                        # Compute the loss
+                                        loss = \
+                                        objective_function(preds,labels)
+                                        
+
                                     if self.show_trace == True:
                                     
                                         print('--> Loss is:',loss,'\n')
