@@ -89,7 +89,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
 
             
         # putting the past and the future to be processed 
-        sample_np =  np.vstack((past_slice,future_slice))
+        sample_np = np.concatenate((past_slice,future_slice), axis = 0)
         
         # In case of debuging uncomment these print() statments
         
