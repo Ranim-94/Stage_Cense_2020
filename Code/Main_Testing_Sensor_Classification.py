@@ -109,17 +109,16 @@ test_choice = {
     }
 
 
-data_percentage = 25
 
 
-#**************************** Start Testing ********************************
+# **************************** Start Testing ********************************
 
 
 '''
 Loading Data: Instantiate
 '''  
 
-dataset_instance = Dataset_SpecSense(saving_location_dict,data_percentage,
+dataset_instance = Dataset_SpecSense(saving_location_dict,
                                      mode = 'sensor_classification')
 
 # this will give us an iterable object
