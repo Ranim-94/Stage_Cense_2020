@@ -35,11 +35,11 @@ class Other_Parameters:
         
         self.model_names = {
     
-        'classification_no_embedding':'cne',
+        'classification_no_embedding':'classif_no_emb',
         
-        'classification_with_embedding': 'cwe',
+        'classification_with_embedding': 'classif_yes_emb',
         
-        'embedding':'emb'
+        'embedding':'Audio2Vec_emb'
 
         }
         

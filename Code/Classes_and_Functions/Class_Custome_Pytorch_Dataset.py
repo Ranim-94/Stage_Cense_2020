@@ -9,7 +9,6 @@ import os
 
 import random
 
-import math
 
 class Dataset_SpecSense(torch.utils.data.Dataset):
     
@@ -75,7 +74,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         Taking the frames of the past and the futures
         '''
             
-        start , finish =  3 , sample_original.shape[0] - 2
+        start , finish =  3 , sample_original.shape[0] - 3
     
         num1 = random.randint(start,finish)
             
@@ -89,7 +88,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
 
             
         # putting the past and the future to be processed 
-        sample_np = np.concatenate((past_slice,future_slice), axis = 0)
+        sample_np = np.vstack((past_slice,future_slice))
         
         # In case of debuging uncomment these print() statments
         
