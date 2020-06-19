@@ -45,8 +45,7 @@ class RunManager():
               '''
               self.run_start_time = None
               
-              
-              
+
               
               self.network = None
               self.loader = None
@@ -97,7 +96,9 @@ class RunManager():
               
               self.run_data.append(results)
               
-              # df = pd.DataFrame.from_dict(self.run_data, orient = 'columns')
+              df_iter = pd.DataFrame.from_dict(self.run_data, orient = 'columns')
+              
+              return df_iter
              
               #  # For Ipython console
               # clear_output(wait=True) # clear the current output

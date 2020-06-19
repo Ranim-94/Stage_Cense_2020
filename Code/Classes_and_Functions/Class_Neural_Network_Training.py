@@ -173,7 +173,7 @@ class Neural_Network_Training:
                   '''
                   
                   self.__start_train(count_run,run,train_loader,manager_object,
-                                     net_1,device,objective_function)
+                                     net_1,device,objective_function,name)
                   
                   
                   # Saving the weigths when finish training for a certain run
@@ -194,7 +194,7 @@ class Neural_Network_Training:
               
               
        def __start_train(self,count_run,run,train_loader,manager_object,net_1,
-                         device,objective_function):
+                         device,objective_function,name):
            
            
             nb_of_iter , actual_iter = run.nb_of_iter - 1 , 0
@@ -236,9 +236,7 @@ class Neural_Network_Training:
                                     if actual_iter > nb_of_iter or \
                                     sample.shape[0] != run.batch_size:
                                         break
-                                    
-                                    
-                                        
+
                                     
                                     if self.show_trace == True:
                                     
@@ -325,7 +323,27 @@ class Neural_Network_Training:
                                         dictonary created inisde Class_RunManager 
                                     
                                     '''
-                                    manager_object.end_iter(loss.item())
+                                    df_iter = manager_object.end_iter(loss.item())
+                                    
+                                    # Saving a checkpoint
+                                    
+                                    if actual_iter % 10 == 0:
+                                        
+                                        checkpoint = {
+                                            
+                                        'iter': actual_iter,
+                                            
+                                        'model_state':net_1.state_dict(),
+                                            
+                                        'run':count_run, 'pandas':df_iter,
+                                            
+                                        'optim_state':
+                                        self.optimization_option['optimizer'].state_dict()
+                                            
+                                            }
+                                            
+                                        torch.save(checkpoint, 
+                                        f'{name}_{count_run}_{actual_iter}.pth')
                       
             '''
             Particular Combination has finished
