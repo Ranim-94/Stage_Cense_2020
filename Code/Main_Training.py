@@ -16,9 +16,9 @@ from Classes_and_Functions.Class_Other_Parameters import Other_Parameters
 
 # Specify which task to train
 
-task = { 'pretext_task': True,
+task = { 'pretext_task': False,
         
-        'sensor_classification': False
+        'sensor_classification': True
 
         }
 
@@ -37,11 +37,11 @@ params_to_try = OrderedDict(
     
     # data_percentage = [6,12,50,100],
     
-    data_percentage = [6,12],
+    data_percentage = [12],
 
     # rquired nb of iteration ,
     # it is independent of batch size or nb of epoch
-    nb_of_iter = [ 1 * int(pow(10,5)) ], 
+    nb_of_iter = [ 1 * int(pow(10,3)) ], 
 
     shuffle = [False]
     

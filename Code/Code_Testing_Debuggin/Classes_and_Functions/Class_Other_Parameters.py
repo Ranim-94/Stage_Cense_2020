@@ -1,0 +1,54 @@
+
+
+import torch
+
+class Other_Parameters:
+    
+    
+    def __init__(self):
+        
+        
+        self.saving_location_dict  = {
+    
+        # 'Directory': this key will be added in training process 
+        # to use different data perecentage,
+    
+        'File_Name_Spectrograms':'train_spec_',
+        
+        'File_Name_time_stamp':'train_time_',
+        
+        'File_Name_sensor_id' : 'train_id_'
+        }
+        
+        
+        self.optimization_option = {
+
+         # For Audio2Vec Embedding task   
+       'Objective_Function_reconstruction':torch.nn.MSELoss(),
+        
+        
+        # For Sensor Classification  task
+        'Objective_Function_sensor_classification':torch.nn.CrossEntropyLoss()
+        
+        }
+        
+        
+        self.model_names = {
+    
+        'classification_no_embedding':'cne',
+        
+        'classification_with_embedding': 'cwe',
+        
+        'embedding':'emb'
+
+        }
+        
+        
+        # If I want to display some print() statements for debugging purpose
+        self.show_trace = False
+
+            
+        
+        
+        
+        
