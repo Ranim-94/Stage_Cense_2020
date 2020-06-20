@@ -10,7 +10,6 @@ import os
 import random
 
 
-
 class Dataset_SpecSense(torch.utils.data.Dataset):
     
     
@@ -68,32 +67,23 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         '''
             
         sample_original = np.load(self.saving_location_dict['Directory'] +
-                         '/' + self.train_spec_list[index] , mmap_mode = 'r')
-        
-
+                                '/' + self.train_spec_list[index] , mmap_mode = 'r')
+            
+            
         '''
         Taking the frames of the past and the futures
         '''
             
         start , finish =  3 , sample_original.shape[0] - 3
-        
-        '''
-        Be aware for start , finish  because numpy is 0 based
-        index and then second index is exclusive
-        '''
-        
     
         num1 = random.randint(start,finish)
             
-
         # taking past slice    
-        past_slice = sample_original[num1 - 2  : num1,:].copy()
+        past_slice = sample_original[num1 - 2: num1,:].copy()
             
-
         
         # taking future slice
-        future_slice = \
-        sample_original[num1 + 1 : num1 + 3,:].copy()
+        future_slice = sample_original[num1 + 1 : num1 + 3,:].copy()
         
 
             
@@ -102,14 +92,14 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         
         # In case of debuging uncomment these print() statments
         
-        print(f'start: {start} | finish: {finish} | num1: {num1} \n')
+        # print(f'start: {start} | finish: {finish} | num1: {num1} \n')
         
 
-        print(f'--> past_slice shape is: {past_slice.shape} \n',
-              f'--> future_slice shape is: {future_slice.shape}')
+        # print(f'--> past_slice shape is: {past_slice.shape} \n',
+        #       f'--> future_slice shape is: {future_slice.shape}')
 
         
-        print(f'--> sample_np shape: {sample_np.shape} \n')
+        # print(f'--> sample_np shape: {sample_np.shape} \n')
         
         
 

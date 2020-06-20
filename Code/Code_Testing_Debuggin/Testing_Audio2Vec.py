@@ -58,11 +58,11 @@ test_choice = {
     
     
     # testing dataloader for a certain batch
-    'batch':True,
+    'batch':False,
     
     'Forward_propagation':False,
     
-    'layer_shape':False
+    'layer_shape':True
     
 
     }
@@ -165,6 +165,9 @@ if test_choice['Forward_propagation'] == True:
 
 
 if test_choice['layer_shape'] == True:
+    
+    # Creating the Neural Network instance
+    net_1 = Audio2Vec(parameters_dic)
     
 
     print('----------- Audio2Vec Architecture -------------- \n')

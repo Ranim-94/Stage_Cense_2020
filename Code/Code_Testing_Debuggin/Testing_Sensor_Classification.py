@@ -75,7 +75,7 @@ saving_location_dict = {
     
     # 'Directory': 'Training_Set',
     
-    'Directory': 'CreatedDataset/Training_Set_50_57',
+    'Directory': 'CreatedDataset/Training_Set_6',
         
     'File_Name_Spectrograms':'train_spec_',
     
@@ -97,11 +97,11 @@ test_choice = {
     
     'Forward_propagation':False,
     
-    'layer_shape':False,
+    'layer_shape':True,
     
     'dataloader':False,
     
-    'save_load':True, 
+    'save_load':False, 
     
     # Model name to be tested
     'path': 'weights_0.pth'
