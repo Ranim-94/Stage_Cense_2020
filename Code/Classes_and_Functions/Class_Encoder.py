@@ -2,11 +2,11 @@
 
 import torch
 
-from Classes_and_Functions.Helper_Functions import conv_block_encoder,\
-dense_block, conv_block_decoder
+from Classes_and_Functions.Helper_Functions import conv_block_encoder 
 
 
-class Encoder:
+
+class Encoder(torch.nn.Module):
     
     
     def __init__(self, parameters_neural_network):
@@ -76,10 +76,10 @@ class Encoder:
                - since Sequential does not accept a list, 
                   we decompose the conv_blokcs by using the * operator.
         '''      
-        encoder = torch.nn.Sequential(*conv_blokcs_list)
+        self.enc_block = torch.nn.Sequential(*conv_blokcs_list)
         
         
-        return encoder
+        
     
     
     
