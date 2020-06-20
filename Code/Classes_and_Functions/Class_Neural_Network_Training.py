@@ -170,14 +170,28 @@ class Neural_Network_Training:
               
                   '''
                   Start training loop
+                  
+                      df_run: a pandas data frame containing
+                      the results for a particular run
                   '''
                   
-                  self.__start_train(count_run,run,train_loader,manager_object,
+                  df_run = self.__start_train(count_run,run,train_loader,manager_object,
                                      net_1,device,objective_function,name)
                   
                   
                   # Saving the weigths when finish training for a certain run
-                  torch.save(net_1.state_dict(), f'Results/{name}_{run.data_percentage}.pth')
+                  
+                  checkpoint_run = {
+                      
+                      'model': net_1.state_dict(),
+                      
+                      'pandas': df_run
+                      
+                      
+                      }
+                  
+                  torch.save(checkpoint_run, 
+                             f'Results/{name}_{count_run}_{run.data_percentage}.pth')
                  
   
                             
@@ -343,12 +357,14 @@ class Neural_Network_Training:
                                             }
                                             
                                         torch.save(checkpoint, 
-                                        f'{name}_{count_run}_{actual_iter}.pth')
+                                        f'Saved_Iteration/{name}_{count_run}_{actual_iter}.pth')
                       
             '''
             Particular Combination has finished
             '''                   
             manager_object.end_run()
+            
+            return df_iter
            
            
            
