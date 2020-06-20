@@ -33,7 +33,6 @@ class RunManager():
               
               self.run_count = 0
               
-              self.run_data = []
  
               '''
               We will append for each run the value of the params
@@ -52,6 +51,7 @@ class RunManager():
        def begin_run(self, run, network, loader):
               
            
+              self.run_data = []
               
               self.run_params = run
               
@@ -94,7 +94,7 @@ class RunManager():
               self.run_data.append(results)
               
               df_iter = pd.DataFrame.from_dict(self.run_data, orient = 'columns')
-              
+
               return df_iter
              
               #  # For Ipython console
