@@ -8,6 +8,9 @@ from Classes_and_Functions.Helper_Functions import conv_block_encoder,\
 dense_block, conv_block_decoder
 
 
+from Classes_and_Functions.Class_Encoder import Encoder
+
+
 '''
 This class implement the Audio2Vec architecture
 '''
