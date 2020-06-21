@@ -334,15 +334,16 @@ class Neural_Network_Training:
                                             
                                         'model_state':net_1.state_dict(),
                                             
-                                        'run':count_run, 'pandas':df_iter,
-                                            
+                                        'perecentage':run.data_percentage, 
+                                        'pandas':df_iter,'name':name,
+                                        
                                         'optim_state':
                                         self.optimization_option['optimizer'].state_dict()
                                             
                                             }
                                             
                                         torch.save(checkpoint, 
-                                        f'Saved_Iteration/{name}_{count_run}_{actual_iter}_{run.data_percentage}.pth')
+                                        f'Saved_Iteration/{name}_{actual_iter}_{run.data_percentage}.pth')
                       
             '''
             Particular Combination has finished

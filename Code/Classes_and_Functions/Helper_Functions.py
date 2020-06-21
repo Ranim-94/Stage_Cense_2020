@@ -5,6 +5,12 @@ import math
 
 import os
 
+import matplotlib
+
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams.update({'font.size': 14, 'text.usetex': True})
+
 
 def get_num_correct(preds,labels):
        return preds.argmax(dim = 1).eq(labels).sum().item()
@@ -296,7 +302,28 @@ def count_sensors(saving_location_dict):
     return count_sensor
     
     
+
+def plot_results(param_plot):
     
+    
+    checkpoint_model = torch.load(f"Results/{param_plot['name_file']}")
+
+    frame_result = checkpoint_model['pandas']
+    
+    
+    fig,axes = plt.subplots()
+    
+    axes.plot(frame_result['Iteration'], frame_result['loss'])
+        
+    axes.set_title(param_plot['title'])
+    axes.set_xlabel(param_plot['xlabel'])
+    axes.set_ylabel(param_plot['ylabel'])
+        
+    axes.grid(color ='b', alpha = 0.5, linestyle = 'dashed', linewidth = 0.5)
+     
+    fig.subplots_adjust(left = 0.15, right=.9, bottom = 0.2, top = 0.9)   
+    
+    fig.savefig(f"Results/{param_plot['save']}")
     
     
 
