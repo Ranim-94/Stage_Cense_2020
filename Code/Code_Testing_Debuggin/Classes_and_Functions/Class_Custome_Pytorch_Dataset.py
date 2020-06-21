@@ -52,6 +52,32 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         self.id_list.sort()
         
         
+        self.samples = np.empty(  (10**4,29,len(self.train_spec_list)) )
+        
+        
+        self.samples_id = np.empty(  (len(self.train_spec_list),10**4 ) )
+        
+
+        
+        for count,(spectr,id_sensor) in enumerate(zip(self.train_spec_list,self.id_list)):
+            
+            # Loading tiers d'octaves
+            self.samples[:,:,count] = \
+            np.load(f"{self.saving_location_dict['Directory'] }/{spectr}",
+                    mmap_mode = 'r')
+            
+            # print(f'--> Creating Specr: samples shape is: {self.samples.shape} \n')
+            
+            
+            
+            # Loading sensor id
+            self.samples_id[count,:] = \
+            np.load(f"{self.saving_location_dict['Directory'] }/{id_sensor}",
+                    mmap_mode = 'r')
+        
+        
+        
+        
         
         
     def __getitem__(self,index):
@@ -66,8 +92,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
             of a file without 
         '''
             
-        sample_original = np.load(self.saving_location_dict['Directory'] +
-                                '/' + self.train_spec_list[index] , mmap_mode = 'r')
+        sample_original = self.samples[:,:,index]
             
             
         '''
@@ -129,8 +154,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
             
             
             # this will contians the files of the sensor index
-            sample_original_id = np.load(self.saving_location_dict['Directory'] +
-                                '/' + self.id_list[index] , mmap_mode = 'r')
+            sample_original_id = self.samples_id[index,:]
             
             '''
             I choose the label 0:4 because 
