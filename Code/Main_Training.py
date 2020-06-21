@@ -16,9 +16,9 @@ from Classes_and_Functions.Class_Other_Parameters import Other_Parameters
 
 # Specify which task to train
 
-task = { 'pretext_task': False,
+task = { 'pretext_task': True,
         
-        'sensor_classification': True
+        'sensor_classification': False
 
         }
 
@@ -37,16 +37,18 @@ params_to_try = OrderedDict(
     
     # data_percentage = [6,12,50,100],
     
-    data_percentage = [12],
+    data_percentage = [100],
 
     # rquired nb of iteration ,
     # it is independent of batch size or nb of epoch
-    nb_of_iter = [ 1 * int(pow(10,3)) ], 
+    nb_of_iter = [ 8 * int(pow(10,4)) ], 
 
     shuffle = [False]
     
     )
 
+
+save_point, start_from_iter = 10**4 , 0
 
 # ********************* Start Trainining *******************************
 
@@ -62,7 +64,7 @@ if task['pretext_task'] == True:
 
     coach = Neural_Network_Training(param.optimization_option,model.parameters_Audio2Vec,
                                     param.saving_location_dict,params_to_try,
-                                    param.show_trace,param.model_names, 
+                                    param.show_trace,param.model_names,save_point, 
                                     mode = 'pretext_task')
 
     coach.training()
@@ -72,7 +74,7 @@ elif task['sensor_classification'] == True:
     
     coach = Neural_Network_Training(param.optimization_option,
                 model.parameters_sensor_classification,param.saving_location_dict,
-                params_to_try,param.show_trace,param.model_names, 
+                params_to_try,param.show_trace,param.model_names,save_point, 
                 mode = 'sensor_classification')
 
     coach.training()
