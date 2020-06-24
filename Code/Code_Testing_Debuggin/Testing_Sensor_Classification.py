@@ -95,9 +95,9 @@ test_choice = {
     # testing dataloader for a certain batch
     'batch':False,
     
-    'Forward_propagation':False,
+    'Forward_propagation':True,
     
-    'layer_shape':True,
+    'layer_shape':False,
     
     'dataloader':False,
     

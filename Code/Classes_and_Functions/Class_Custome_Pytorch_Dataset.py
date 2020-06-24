@@ -169,7 +169,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
             # turning numpy array into pythorch tensors    
             sample = torch.from_numpy(sample_np).float()
             
-            label = torch.from_numpy(label)
+            label = torch.from_numpy(label).long()
             
             # turning into a batch format [volume, height, width]
             sample = sample.unsqueeze(0)
