@@ -43,6 +43,7 @@ class Other_Parameters:
 
         }
         
+        self.frame_width , self.rows_npy = 40, 10**4
         
         # If I want to display some print() statements for debugging purpose
         self.show_trace = False

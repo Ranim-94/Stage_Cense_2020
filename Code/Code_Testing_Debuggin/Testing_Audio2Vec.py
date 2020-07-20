@@ -24,7 +24,7 @@ from Classes_and_Functions.Class_Other_Parameters import Other_Parameters
 
 saving_location_dict = {
     
-    'Directory': 'CreatedDataset/Training_Set_6',
+    'Directory': 'CreatedDataset/Training_Set_25',
         
     'File_Name_Spectrograms':'train_spec_',
     
@@ -41,12 +41,13 @@ saving_location_dict = {
 for Audio2Vec model
 '''
   
-# Instantiate the architectures for both models
+# Instantiate the architectures object
 model = Model_Architecture()
-  
+ 
+# Accessing the attibutes architecture for Audio2Vec 
 parameters_dic = model.parameters_Audio2Vec
 
-parameters_dic['batch_size'] = 8
+parameters_dic['batch_size'] = 10
 
 
 
@@ -60,9 +61,13 @@ test_choice = {
     # testing dataloader for a certain batch
     'batch':False,
     
-    'Forward_propagation':True,
+    'Forward_propagation':False,
     
-    'layer_shape':False
+    'layer_shape':True,
+    
+    # Scanning all batches 
+    
+    'scan_batches':False
     
 
     }
@@ -79,7 +84,8 @@ test_choice = {
 Loading Data: Instantiate
 ''' 
 
-dataset_instance = Dataset_SpecSense(saving_location_dict,mode = 'pretext_task')
+dataset_instance = Dataset_SpecSense(saving_location_dict,frame_width = 40,
+                                     rows_npy = 10**4,mode = 'pretext_task')
 
 
 # this will give us an iterable object
@@ -144,7 +150,7 @@ if test_choice['Forward_propagation'] == True:
     # Testing Forward Pass
     pred = net_1(sample)
     
-    print('\t * Prediction shape is',pred.shape,'\n')
+    print(f'\t * Prediction shape is {pred.shape} | label shape: {label.shape} \n')
 
     
     print('********************************************* \n')
@@ -176,6 +182,23 @@ if test_choice['layer_shape'] == True:
     
     
     print('********************************************* \n')
+    
+    
+if test_choice['scan_batches'] == True:
+    
+    print(f'--> Number of balanced Npy files: {len(dataset_instance.spectr_balanced )} ',
+          f'| Nb of batches is: {len(train_loader)} \n')
+    
+    # for count,batch in enumerate(train_loader):
+        
+    #     print(f'--> batch # {count} \n') 
+        
+    #     # unpacking
+    #     sample , labels = batch 
+                                 
+    #     print(f' --> Sample shape: {sample.shape} | labels shape: {labels.shape} \n')
+                                    
+    #     # print(f'--> Labels are: {labels} \n')                         
 
 
 

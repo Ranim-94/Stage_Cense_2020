@@ -33,14 +33,14 @@ parameters_neural_network = {
        # Input layer
        
        # [height, width]
-       'size_input': (4,29),
+       'size_input': (32,29),
        
        # If we are working with gray scale of RGB images
        'volume_input':1,
        #---------------------------------------
        
        # for CNN layers
-       'list_filter_nb_per_layer':(64,128,256,256,512,512),
+       'list_filter_nb_per_layer':(64,128,256),
        
        'padding':1, 'stride': 1,'kernel_size':3,
        
@@ -118,7 +118,8 @@ test_choice = {
 Loading Data: Instantiate
 '''  
 
-dataset_instance = Dataset_SpecSense(saving_location_dict,
+dataset_instance = Dataset_SpecSense(saving_location_dict,frame_width = 40,
+                                     rows_npy = 10**4,
                                      mode = 'sensor_classification')
 
 # this will give us an iterable object
@@ -178,6 +179,8 @@ if test_choice['Forward_propagation'] == True:
     # convert to an iterator and look at one random sample
     sample,label = next(iter(train_loader))
     
+    print(f'--> Labels shape is: {label.shape} \n')
+    
     print('-- > Testing forward propagation through encoder part \n')
     
     # Testing Forward Pass
@@ -216,9 +219,9 @@ if test_choice['dataloader'] == True:
         # unpacking
         sample , labels = batch 
         
-        print(f'Label is: {labels} \n')
+        # print(f'Label is: {labels} \n')
         
-        labels = labels.reshape(-1)
+        # labels = labels.reshape(-1)
         
         print(f'-->Sample shape is: {sample.shape}',
               f'| Labels shape is: {labels.shape} \n')

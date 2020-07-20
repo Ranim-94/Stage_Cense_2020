@@ -17,7 +17,7 @@ class Encoder(torch.nn.Module):
         
         
         self._CNN_layers_size = \
-        [parameters_neural_network['volume_input'],
+        [parameters_neural_network['input_volume'],
          *parameters_neural_network['list_filter_nb_per_layer']]
         
         '''

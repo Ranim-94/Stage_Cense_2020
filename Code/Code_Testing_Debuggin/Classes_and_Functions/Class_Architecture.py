@@ -12,14 +12,19 @@ class Model_Architecture:
        
            # Input layer
 
-           'size_input': (4,29), # [height, width]
+           'size_input': (32,29), # [height, width]
+           
+            
+           # 32: because we have 16 frames (<--> 2s) from past
+           # and 16 from future
+            
            
            # If we are working with gray scale of RGB images
-           'volume_input':1,
+           'input_volume':1,
            #---------------------------------------
            
            # for CNN layers
-           'list_filter_nb_per_layer':(64,128,256,256,512,512),
+           'list_filter_nb_per_layer':(64,128,256, 256, 512, 512),
            
            'padding':1, 'stride': 1,'kernel_size':3,
            
@@ -29,7 +34,7 @@ class Model_Architecture:
            
            'pooling_option':True,
            
-           'padding_pool':0, 'stride_pool': (1,2),'kernel_size_pool':1,
+           'padding_pool':0 , 'stride_pool': (1,2) ,'kernel_size_pool':1,
            
            # stride_pool: (for striding height, for striding width)
            
@@ -41,28 +46,37 @@ class Model_Architecture:
 
            # ---------- Decoder Specification -------------
     
-           'mode_upsampling':'nearest', 'scale_factor':(1,0.79),
+           'mode_upsampling':'nearest', 'scale_factor':(0.87,0.838)
            
            # 'scale_factor':(height,width)
            
-            'scale_reconstruction':(0.3,1),
+           
             
     
            }
+        
+        
+        # for 3 layers: 
+        #     scale_factor: (0.79,0.749)
+        # for 6 layers:
+        #     scale_factor:(0.87,0.838)
+            
         
         
         self.parameters_sensor_classification = {
            
            # Input layer
 
-           'size_input': (4,29), # [height, width]
+           'size_input': (32,29), # [height, width]
            
            # If we are working with gray scale of RGB images
-           'volume_input':1,
+           
+           'volume_input':1 ,
+           
            #---------------------------------------
            
            # for CNN layers
-           'list_filter_nb_per_layer':(64,128,256,256,512,512),
+           'list_filter_nb_per_layer':(64,128,256),
            
            'padding':1, 'stride': 1,'kernel_size':3,
            

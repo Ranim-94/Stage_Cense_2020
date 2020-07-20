@@ -5,11 +5,15 @@ import math
 
 import os
 
+import numpy as np
+
 import matplotlib
 
 import matplotlib.pyplot as plt
 
-matplotlib.rcParams.update({'font.size': 14, 'text.usetex': True})
+from collections import OrderedDict
+
+# matplotlib.rcParams.update({'font.size': 14, 'text.usetex': True})
 
 
 def get_num_correct(preds,labels):
@@ -19,7 +23,7 @@ def get_num_correct(preds,labels):
 
 
 @torch.no_grad()
-def get_all_preds(model, loader):
+def get_all_preds(model, loader, device):
        
        '''
        Description:
@@ -44,14 +48,28 @@ def get_all_preds(model, loader):
        '''
        
        all_preds = torch.tensor([])
+       
+       all_labels = torch.tensor([])
+       
+       device_cpu = torch.device("cpu")
+       
        for batch in loader:
-              images, labels = batch
+              sample, labels = batch
               
-              preds = model(images)
               
-              all_preds = torch.cat((all_preds, preds),dim=0)
+               # Moving the Data to GPU
+              sample , labels = sample.to(device), \
+                  labels.to(device_cpu)
               
-       return all_preds
+              preds = model(sample)
+              
+              # Moving back to the cpu
+
+              all_preds = torch.cat((all_preds, preds.to(device_cpu)),dim=0)
+              
+              all_labels = torch.cat((all_labels, labels.float()))
+              
+       return all_preds , all_labels
 
 
 # For CNN layers
@@ -273,17 +291,19 @@ def count_sensors(saving_location_dict):
     sliced = len('train_id_xx')  
     
     # removing the time information month_day_slice_Nb
+    # and taking 'xx' directly by slcing the last 2 elements using
+    # [-2:]
     for counter,names in enumerate(list_sensor_name) :
         
         list_sensor_name[counter] = \
-        names.replace(names,names[:sliced])
+        names.replace(names,names[:sliced][-2:])
     
     
     '''
     Creating an empty dictionary for counting
     '''
     
-    count_sensor = {}
+    count_sensor = OrderedDict()
     
     '''
     Creating the counting
@@ -297,37 +317,245 @@ def count_sensors(saving_location_dict):
         else:
             
             count_sensor[names] = 1
-    
+            
+
     
     return count_sensor
     
     
 
-def plot_results(param_plot):
+def plot_results(param_plot,resume_training, start_from_iter ,iter_nb):
     
     
-    checkpoint_model = torch.load(f"Results/{param_plot['name_file']}")
+    checkpoint_model = torch.load(f"Saved_Iteration/{param_plot['name_file']}")
 
     frame_result = checkpoint_model['pandas']
     
     
     fig,axes = plt.subplots()
     
-    axes.plot(frame_result['Iteration'], frame_result['loss'])
+    
+    if resume_training == True:
         
+    
+        start, stop, step = start_from_iter , iter_nb , 1
+    
+        axes.plot(np.arange(start,stop, step), 
+              frame_result['loss'] )
+    
+    
+    else:
+        
+        axes.plot(frame_result['Iteration'],frame_result['loss'] )
+    
+        
+            
     axes.set_title(param_plot['title'])
+
     axes.set_xlabel(param_plot['xlabel'])
+
     axes.set_ylabel(param_plot['ylabel'])
+    
+   
+    
+
+    
+    secax = axes.secondary_xaxis('top', functions = (epoch_to_iter, iter_to_epoch) )
+    
+    secax.set_xlabel('Epoch Nb')
         
     axes.grid(color ='b', alpha = 0.5, linestyle = 'dashed', linewidth = 0.5)
      
-    fig.subplots_adjust(left = 0.15, right=.9, bottom = 0.2, top = 0.9)   
+    fig.subplots_adjust(left = 0.15, right=.9, bottom = 0.2, top = 0.8)   
     
-    fig.savefig(f"Results/{param_plot['save']}")
-    
+    fig.savefig(f"Saved_Iteration/{param_plot['save']}")
     
 
 
+
+def plot_multiple_results(param_plot,resume_training, start_from_iter ,iter_nb):
+    
+    
+    checkpoint_model = torch.load(f"Saved_Iteration/{param_plot['name_file']}")
+
+    frame_result = checkpoint_model['pandas']
+    
+    
+    fig,axes = plt.subplots(nrows = 3, ncols = 1)
+    
+    
+    if resume_training == True:
+        
+    
+        start, stop, step = start_from_iter , iter_nb , 1
+    
+        axes.plot(np.arange(start,stop, step), 
+              frame_result['loss'] )
+    
+    
+    else:
+        
+        axes.plot(frame_result['Iteration'],frame_result['loss'] )
+    
+        
+            
+    axes.set_title(param_plot['title'])
+
+    axes.set_xlabel(param_plot['xlabel'])
+
+    axes.set_ylabel(param_plot['ylabel'])
+    
+   
+    
+
+    
+    secax = axes.secondary_xaxis('top', functions = (epoch_to_iter, iter_to_epoch) )
+    
+    secax.set_xlabel('Epoch Nb')
+        
+    axes.grid(color ='b', alpha = 0.5, linestyle = 'dashed', linewidth = 0.5)
+     
+    fig.subplots_adjust(left = 0.15, right=.9, bottom = 0.2, top = 0.8)   
+    
+    fig.tight_layout()
+    
+    fig.savefig(f"Saved_Iteration/{param_plot['save']}")
+
+
+
+
+    
+def iter_to_epoch(x):
+    
+    # checkpoint_model = torch.load(f"Saved_Iteration/{param_plot['name_file']}")
+
+    # iterations = checkpoint_model['Iteration']
+    
+    x = 350 * x
+    
+    return x
+
+
+def epoch_to_iter(x):
+    
+    x = (1/350) * x
+    
+    
+    return x
+    
+    
+ 
+
+def bar_plot(data_percentage,r_c):
+    
+    matplotlib.rcParams.update({'font.size': 8, 'text.usetex': True})
+    
+    fig,axes = plt.subplots(nrows = 3, ncols = 2)
+    
+    
+    
+    for data,rc in zip(data_percentage,r_c) :
+        
+        saving_location_dict = {
+            
+            # 'Directory': 'Training_Set',
+            
+            'Directory': f'CreatedDataset/Training_Set_{data}',
+                
+            'File_Name_Spectrograms':'train_spec_',
+            
+            'File_Name_time_stamp':'train_time_',
+            
+            'File_Name_sensor_id' : 'train_id_'
+            }
+        
+        # Counting the sensor distribution for a specific %
+        sensors_count = count_sensors(saving_location_dict)
+        
+        '''
+        Since I can't do a bar plot where the sensor
+        index are sorted (OrderectDict is not working)
+        I will do this manually
+        '''
+        
+        
+        # Taking the keys (senso index) and turn them into
+        # list of integers so I can sort them
+        keys_list = list(sensors_count.keys()) 
+        
+        keys_nb = list(map(int,keys_list)) 
+       
+        # Sorting
+        keys_nb.sort() 
+        
+        # Constructing the height (count values) for each sensor
+        
+        y_sensors = []
+        
+        for item in keys_nb:
+            
+            y_sensors.append(sensors_count[f'{item}']) 
+            
+        
+        
+        # unpakcing correpsondant index for the ax position
+        r,c = rc
+          
+        # Plotting a bar plot for a specific % of data
+        axes[r,c].bar(keys_nb,y_sensors)
+        axes[r,c].set(title = f'{data} \%' )
+     
+        # Putting the exact number on each bar 
+        for index, value in zip(keys_nb,y_sensors):
+            axes[r,c].text(index,value + 4 , str(value), 
+                           horizontalalignment = 'center',
+                           verticalalignment = 'center')
+    
+    
+    # Finish plotting all axes
+    
+    # Setting x and y labels
+    for ax in axes.flat:
+        ax.set(xlabel = 'Sensor Index ',ylabel = 'Count')
+        # ax.label_outer()    
+     
+    # Hide x labels and tick labels for top plots and y ticks for right plots.
+    
+        
+
+        
+    fig.subplots_adjust(left = 0.4, right=.8, 
+                        bottom = 0.2, top = 0.9)
+        
+    
+    
+    fig.tight_layout()
+    '''
+    Automatically adjusts the positions of the axes on the figure 
+    canvas so that there is no overlapping content:
+    '''
+    
+
+    
+    fig.savefig(f"Results/Bar_Plot_Sensors_all.pdf")
+
+    
+    
+
+def mapper(sensor_dist):
+    
+    mapper = {}
+
+    
+    for count,key in enumerate(sensor_dist.keys()) :
+    
+        # taking the index
+        index = key[-2:]
+        
+        mapper[f'{index}'] = count 
+        
+        
+    return mapper 
                          
                  
 

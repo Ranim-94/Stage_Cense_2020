@@ -13,12 +13,13 @@ from Classes_and_Functions.Class_Architecture import Model_Architecture
 
 from Classes_and_Functions.Class_Other_Parameters import Other_Parameters
 
+from Classes_and_Functions.Helper_Functions import plot_results
 
 # Specify which task to train
 
-task = { 'pretext_task': False,
+task = { 'pretext_task': True,
         
-        'sensor_classification': True
+        'sensor_classification': False
 
         }
 
@@ -37,18 +38,23 @@ params_to_try = OrderedDict(
     
     # data_percentage = [6,12,50,100],
     
-    data_percentage = [25],
+    data_percentage = [6],
 
     # rquired nb of iteration ,
     # it is independent of batch size or nb of epoch
-    nb_of_iter = [ 8 * int(pow(10,4)) ], 
+    nb_of_iter = [ 700 ], 
 
-    shuffle = [False]
+    shuffle = [True]
     
     )
 
 
-save_point, start_from_iter = 10**4 , 0
+
+save_point, start_from_iter, resume_training = \
+350 , 0 , False
+
+
+loaded_model = 'Saved_Iteration/Audio2Vec_emb_70000_6.pth'
 
 # ********************* Start Trainining *******************************
 
@@ -62,23 +68,80 @@ model = Model_Architecture()
 if task['pretext_task'] == True:
     
 
-    coach = Neural_Network_Training(param.optimization_option,model.parameters_Audio2Vec,
+    coach = Neural_Network_Training(param.optimization_option,
+                                    model.parameters_Audio2Vec,
                                     param.saving_location_dict,params_to_try,
+                                    param.frame_width, param.rows_npy,
                                     param.show_trace,param.model_names,save_point, 
-                                    start_from_iter,mode = 'pretext_task')
+                                    start_from_iter,resume_training,
+                                    loaded_model,mode = 'pretext_task')
 
-    coach.training()
+    valid_loss_per_epoch = coach.training()
+    
+    
+    iter_nb = int(params_to_try['nb_of_iter'][0]) 
+    
+    percentage = params_to_try['data_percentage'][0]
+    
+    
+    # param_plot = {
+    
+    # # Enter the name of the saved pth file
+    # 'name_file': f"Audio2Vec_emb_100000_6.pth",
+    
+    # 'title':f"Audio2Vec Using Satble Adam and Scheduler",
+    
+    # 'xlabel':'Iteration Number',
+    
+    # 'ylabel':'Mean Square Error',
+    
+    # 'save':f"Audio2Vec_emb_{iter_nb}_{percentage}.pdf"
+    
+    
+    # }
+
+
+    # plot_results(param_plot,resume_training, start_from_iter ,iter_nb)
     
     
 elif task['sensor_classification'] == True:
     
-    coach = Neural_Network_Training(param.optimization_option,
-                model.parameters_sensor_classification,param.saving_location_dict,
-                params_to_try,param.show_trace,param.model_names,save_point, 
-                start_from_iter,mode = 'sensor_classification')
+    # coach = Neural_Network_Training(param.optimization_option,
+    #             model.parameters_sensor_classification,
+    #             param.saving_location_dict,
+    #             params_to_try,
+    #             param.frame_width, param.rows_npy,
+    #             param.show_trace,param.model_names,save_point, 
+    #             start_from_iter,resume_training,
+    #             loaded_model,mode = 'sensor_classification')
 
-    coach.training()
+    # coach.training()
 
+
+    iter_nb = int(params_to_try['nb_of_iter'][0])
+    
+    percentage = params_to_try['data_percentage'][0]
+
+    param_plot = {
+    
+    
+    'name_file': f"classif_no_emb_60000_6_Stable_Adam.pth",
+    
+    'title':f"Task: Sensor Classification Using Adam ",
+    
+    'xlabel':'Iteration Number',
+    
+    'ylabel':'Cross Entropy',
+    
+    'label':'Stable_Adam',
+    
+    'save':f"Classif_no_emb_{iter_nb}_{percentage}_Satble_Adam.pdf"
+    
+    
+    }
+
+
+    plot_results(param_plot,resume_training, start_from_iter ,iter_nb)
 
 
 

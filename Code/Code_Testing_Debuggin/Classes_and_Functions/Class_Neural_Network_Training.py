@@ -22,7 +22,7 @@ class Neural_Network_Training:
        
        def __init__(self,optimization_option,parameters_neural_network,
                     saving_location_dict,params_to_try,show_trace,model_names,
-                    mode):
+                    save_point,start_from_iter,mode):
               
               '''
               this is the neural network model implemented in its
@@ -47,6 +47,10 @@ class Neural_Network_Training:
               '''
               
               self.model_names = model_names
+              
+              self.save_point = save_point
+              
+              self.start_from_iter = start_from_iter
         
         
        def training(self):
@@ -175,31 +179,12 @@ class Neural_Network_Training:
                       the results for a particular run
                   '''
                   
-                  df_run = self.__start_train(count_run,run,train_loader,manager_object,
+                  self.__start_train(count_run,run,train_loader,manager_object,
                                      net_1,device,objective_function,name)
                   
                   
-                  # Saving the weigths when finish training for a certain run
-                  
-                  checkpoint_run = {
-                      
-                      'model': net_1.state_dict(),
-                      
-                      'pandas': df_run
-                      
-                      
-                      }
-                  
-                  torch.save(checkpoint_run, 
-                             f'Results/{name}_{count_run}_{run.data_percentage}.pth')
-                 
-  
-                            
-              '''
-              Save the results for all combinations
-              ''' 
-              manager_object.save('Results')
-              
+     
+              # End of all runs for the training
               print('********************************* \n')
               
               print('-->  Done Training ! \n')
@@ -211,7 +196,7 @@ class Neural_Network_Training:
                          device,objective_function,name):
            
            
-            nb_of_iter , actual_iter = run.nb_of_iter - 1 , 0
+            nb_of_iter , actual_iter = run.nb_of_iter - 1 , self.start_from_iter
             
             '''
             nb_of_iter : required nb of iteration
@@ -341,7 +326,7 @@ class Neural_Network_Training:
                                     
                                     # Saving a checkpoint
                                     
-                                    if actual_iter % 10 == 0:
+                                    if actual_iter % self.save_point == 0:
                                         
                                         checkpoint = {
                                             
@@ -349,23 +334,23 @@ class Neural_Network_Training:
                                             
                                         'model_state':net_1.state_dict(),
                                             
-                                        'run':count_run, 'pandas':df_iter,
-                                            
+                                        'perecentage':run.data_percentage, 
+                                        'pandas':df_iter,'name':name,
+                                        
                                         'optim_state':
                                         self.optimization_option['optimizer'].state_dict()
                                             
                                             }
                                             
                                         torch.save(checkpoint, 
-                                        f'Saved_Iteration/{name}_{count_run}_{actual_iter}.pth')
+                                        f'Saved_Iteration/{name}_{actual_iter}_{run.data_percentage}.pth')
                       
             '''
             Particular Combination has finished
             '''                   
             manager_object.end_run()
             
-            return df_iter
-           
+            
            
            
         

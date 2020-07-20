@@ -5,6 +5,12 @@ import math
 
 import os
 
+import matplotlib
+
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams.update({'font.size': 14, 'text.usetex': True})
+
 
 def get_num_correct(preds,labels):
        return preds.argmax(dim = 1).eq(labels).sum().item()
@@ -255,6 +261,18 @@ def complexity(Neual_Net_model):
                          
 def count_sensors(saving_location_dict):
     
+    '''
+    This function count the sensor we have in a certain directory
+    
+    Output: dictionary where:
+        
+        key: sensor index (string) | value: counts (integer)
+        
+        Example: '50': 4
+    
+    '''
+    
+    
     list_all_numpy_files = os.listdir(saving_location_dict['Directory'])
      
     '''
@@ -267,10 +285,12 @@ def count_sensors(saving_location_dict):
     sliced = len('train_id_xx')  
     
     # removing the time information month_day_slice_Nb
+    # and taking 'xx' directly by slcing the last 2 elements using
+    # [-2:]
     for counter,names in enumerate(list_sensor_name) :
         
         list_sensor_name[counter] = \
-        names.replace(names,names[:sliced])
+        names.replace(names,names[:sliced][-2:])
     
     
     '''
@@ -291,16 +311,56 @@ def count_sensors(saving_location_dict):
         else:
             
             count_sensor[names] = 1
-    
+            
+
     
     return count_sensor
     
     
+
+def plot_results(param_plot):
     
+    
+    checkpoint_model = torch.load(f"Saved_Iteration/{param_plot['name_file']}")
+
+    frame_result = checkpoint_model['pandas']
+    
+    
+    fig,axes = plt.subplots()
+    
+    axes.plot(frame_result['Iteration'], frame_result['loss'])
+        
+    axes.set_title(param_plot['title'])
+    axes.set_xlabel(param_plot['xlabel'])
+    axes.set_ylabel(param_plot['ylabel'])
+        
+    axes.grid(color ='b', alpha = 0.5, linestyle = 'dashed', linewidth = 0.5)
+     
+    fig.subplots_adjust(left = 0.15, right=.9, bottom = 0.2, top = 0.9)   
+    
+    fig.savefig(f"Saved_Iteration/{param_plot['save']}")
     
     
 
 
+
+def mapper(sensor_dist):
+    
+    '''
+    for each sensor index, we give some label starting from 0
+    '''
+    
+    # Empty dictionary
+    mapper = {}
+
+    
+    for count,key in enumerate(sensor_dist.keys()) :
+    
+
+        mapper[key] = count 
+        
+        
+    return mapper 
                          
                  
 
