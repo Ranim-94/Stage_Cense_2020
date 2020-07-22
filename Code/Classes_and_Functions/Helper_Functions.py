@@ -53,7 +53,13 @@ def get_all_preds(model, loader, device):
        
        device_cpu = torch.device("cpu")
        
+       print(f'Nb of samples in loader: {len(loader)} \n')
+       
+       print('Starting Computing Prediction \n')
+       
        for batch in loader:
+           
+           
               sample, labels = batch
               
               
@@ -61,13 +67,24 @@ def get_all_preds(model, loader, device):
               sample , labels = sample.to(device), \
                   labels.to(device_cpu)
               
+              # print(f'sample shape: {sample.shape} | label shape: {labels.shape} \n')  
+                
               preds = model(sample)
+              
+              # print(f'preds shape: {preds.shape} \n')
               
               # Moving back to the cpu
 
               all_preds = torch.cat((all_preds, preds.to(device_cpu)),dim=0)
               
               all_labels = torch.cat((all_labels, labels.float()))
+              
+              # print(f'all_preds shape: {all_preds.shape} |',
+              #       f'all_labels shape: {all_labels.shape} \n')
+              
+              
+       print('Done with prediction \n')
+              
               
        return all_preds , all_labels
 
@@ -544,15 +561,24 @@ def bar_plot(data_percentage,r_c):
 
 def mapper(sensor_dist):
     
+    '''
+    Each sensor index will be given some label
+    
+    Example: sensor index 50 <--> 0
+    '''
+    
     mapper = {}
 
     
-    for count,key in enumerate(sensor_dist.keys()) :
+    sensors = list(map(int,sensor_dist.keys()))
+
+    sensors.sort()
+
+
+    for count,sens in enumerate(sensors) :
     
-        # taking the index
-        index = key[-2:]
-        
-        mapper[f'{index}'] = count 
+    
+        mapper[f'{sens}'] = count  
         
         
     return mapper 
