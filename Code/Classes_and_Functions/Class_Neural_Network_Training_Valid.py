@@ -146,7 +146,7 @@ class Neural_Network_Training_Valid:
                   '''
 
                   self.saving_location_dict['Directory'] = \
-                     f'CreatedDataset/Eval_Set'
+                     f'CreatedDataset/Validation_Set'
                     
                     
                    # this will give us an iterable object
@@ -228,21 +228,13 @@ class Neural_Network_Training_Valid:
                       
                         self.optimization_option['optimizer'].load_state_dict(checkpoint['optim_state'])
                       
-                  
-                    
-                  self.scheduler = \
-                  torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimization_option['optimizer'],
-                                                             patience = 2)
-                  
-                  
-
-                  
+      
                   manager_object.begin_run(run, network = net_1,
                                            loader = self.train_loader)
                  
         
                   # Start training loop
-                  valid_loss_per_epoch = \
+                  valid_loss_per_epoch, accuracy_validation = \
                   self.__start_train_valid(count_run,run,manager_object,
                                      net_1,device,objective_function,name)
                   
@@ -257,7 +249,7 @@ class Neural_Network_Training_Valid:
               
               
               
-              return valid_loss_per_epoch
+              return valid_loss_per_epoch,accuracy_validation
               
               
        def __start_train_valid(self,count_run,run,manager_object,net_1,
@@ -274,7 +266,7 @@ class Neural_Network_Training_Valid:
             In Audio2vec paper: nb_of_iter = 3 million 
             '''
             
-            # acc_test = []
+            accuracy_validation = []
             
             # to track losses
             valid_loss, valid_loss_per_epoch = [], []
@@ -308,29 +300,67 @@ class Neural_Network_Training_Valid:
                           f'{len(loader)} \n')
                 
                     
+                    if phase == 'valid' and self.mode == 'sensor_classification':
+                        
+                        '''
+                        In this block, I compute the accuracy on 
+                        validation set for sensor classification           
+                        '''
+            
+                        # Computing the prediction for all batches
+                        # using the trained model
+                        test_pred, test_labels = \
+                            get_all_preds(net_1,self.valid_loader,device)
+                            
+                            
+                        print(f'test_pred shape: {test_pred.shape} | ',
+                              f'test_labels shape: {test_labels.shape}')
+                                            
+                        preds_correct_test = \
+                            get_num_correct(test_pred,test_labels)
+                                            
+                            
+                                            
+                        acc_nb = preds_correct_test/(run.batch_size*len(self.valid_loader))
+                                            
+                        accuracy_validation.append(acc_nb)
+                                        
+                        print(f'Accuracy on validation set is: {acc_nb} \n')
+                        
                     
-                    
-                    for count,batch in enumerate(loader):
+                    else:
+                        
+                        
+                         '''
+                        This loop will be entered in the following 
+                        cases:
+                                        
+                         1) training and pretext task
+                         2) training and sensor classification task
+                         3) validation on pretext task
+                            to compute losses (MSE) on 
+                            validation set in each iteration
+                            then taking the average for each epoch
+                         '''
+                         
+                         for count,batch in enumerate(loader):
+     
                                  
                                     if self.show_trace == True:
                                         
                                         print(f'--> batch # {count} \n') 
-                                    
-
-                                    
+   
                                     # unpacking
                                     sample , labels = batch 
                                     
                                     # print(f' --> labels shape: {labels.shape} \n')
                                     
                                     # print(f'--> Labels are: {labels} \n')
-                                    
-                                    
-                                    
+      
                                     # Moving the Data to GPU
                                     sample , labels = sample.to(device), \
                                     labels.to(device)
-                                    
+    
                                     
                                     # We count iteration only in training mode
                                     if phase == 'train':
@@ -378,14 +408,20 @@ class Neural_Network_Training_Valid:
                                         '''
                                         manager_object.begin_iter()
                                         
-                                        print(f'# Train | Iteration # {actual_iter}' ,
-                                              f' | run # {count_run}\n')
+                                        if self.mode == 'sensor_classification':
+                                        
+                                            print(f'# Train Sensor Classif | Iteration # {actual_iter}' ,
+                                                  f' | run # {count_run}\n')
+                                            
+                                            
+                                        else:
+                                            
+                                            print(f'# Train Pretext Task | Iteration # {actual_iter}' ,
+                                                  f' | run # {count_run}\n')
                                         
                                         
                                     if phase == 'valid':
-                                        
-                                        
-                                        
+                                                                                
                                         print(f'--> Valid | Iteration: {count} \n')
                                     
 
@@ -456,7 +492,7 @@ class Neural_Network_Training_Valid:
                                    
                                         
                                         df_iter = manager_object.end_iter(loss.item())
-                                    
+    
 
                                         # Saving a checkpoint
                                         
@@ -478,29 +514,34 @@ class Neural_Network_Training_Valid:
                                                 
                                             torch.save(checkpoint, 
                                             f'Saved_Iteration/{name}_{actual_iter}_{run.data_percentage}.pth')
-                 
-                             
-                           
+
                                   
                                     if phase == 'valid':
                                         
-                                        valid_loss.append(loss.item())
-                                        
-                                    
-   
-                                    
-                    if phase == 'valid':
-                                 
-                        # computing average valid loss per epoch
-                        valid_loss_per_epoch.append(sum(valid_loss)/len(valid_loss))
-                                 
-                        # Clearning the valid_loss list
-                        valid_loss = []
-                                 
-                        print('--> Done with Valid Mode \n')
-                            
-                             
+                                        if self.mode == 'pretext_task':
+                                            
+                                            valid_loss.append(loss.item())
+       
   
+                            
+    
+                     # '''
+                     #    In this scope the epoch is finished
+                     #    We compute here the average loss per 
+                     #    epoch on the validation set for pretext task
+                     # '''                
+                    if phase == 'valid':
+                            
+                            if self.mode == 'pretext_task':
+                                     
+                                # computing average valid loss per epoch
+                                valid_loss_per_epoch.append(sum(valid_loss)/len(valid_loss))
+                                         
+                                # Clearning the valid_loss list
+                                valid_loss = []
+                                         
+                                print('--> Done with Valid Mode \n')
+
             
             if phase == 'train':
 
@@ -508,7 +549,7 @@ class Neural_Network_Training_Valid:
                 manager_object.end_run()
             
             
-            return valid_loss_per_epoch
+            return valid_loss_per_epoch,accuracy_validation
             
             
            
