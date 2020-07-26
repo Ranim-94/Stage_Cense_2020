@@ -221,7 +221,7 @@ class Neural_Network_Training_Valid:
                   '''
                   self.optimization_option['optimizer'] =  \
                       torch.optim.Adam(net_1.parameters(), lr = math.pow(10,-3),
-                                       amsgrad = False)
+                                       amsgrad = True)
                   
                   # In case we need to resume training
                   if self.resume_training == True:
@@ -268,10 +268,17 @@ class Neural_Network_Training_Valid:
             
             accuracy_validation = []
             
+            # Very high initial loss for Audio2Vec model
+            # And also accuracy for sensor classification
+            loss_start, best_acc = 10**4 , 0
+            
             # to track losses
             valid_loss, valid_loss_per_epoch = [], []
             
-            
+            # I just initilize as initial value
+            # so it won't give error in the scope of
+            # validation and sensor classification task
+            df_iter = []
                         
             while actual_iter < nb_of_iter:
                 
@@ -298,13 +305,15 @@ class Neural_Network_Training_Valid:
                         
                         print(f'We are in valid mode | Nb of Sample_valid:',
                           f'{len(loader)} \n')
-                
-                    
+                        
                     if phase == 'valid' and self.mode == 'sensor_classification':
                         
                         '''
                         In this block, I compute the accuracy on 
-                        validation set for sensor classification           
+                        validation set for sensor classification 
+                        
+                        and save results when
+                        accuracy increase
                         '''
             
                         # Computing the prediction for all batches
@@ -318,31 +327,51 @@ class Neural_Network_Training_Valid:
                                             
                         preds_correct_test = \
                             get_num_correct(test_pred,test_labels)
-                                            
-                            
-                                            
+                                                               
                         acc_nb = preds_correct_test/(run.batch_size*len(self.valid_loader))
+                        
+                        # Saving the model and some results
+                        # when accuracy increased
+                        if acc_nb > best_acc:
+                            
+                            best_acc = acc_nb
+                            
+                            checkpoint = {
+                                                
+                                'iter': actual_iter,
+                                                
+                                'model_state':net_1.state_dict(),
+                                                
+                                'perecentage':run.data_percentage, 
+                                'pandas':df_iter,'name':name,
                                             
+                                'optim_state':
+                                self.optimization_option['optimizer'].state_dict()
+                                                
+                                            }
+                                                
+                            torch.save(checkpoint, 
+                                 f'Saved_Iteration/{name}_{run.data_percentage}.pth')
+                            
+                        # Appending the result
                         accuracy_validation.append(acc_nb)
                                         
                         print(f'Accuracy on validation set is: {acc_nb} \n')
-                        
+                    
+ 
                     
                     else:
-                        
-                        
-                         '''
-                        This loop will be entered in the following 
-                        cases:
+
+                        # This loop will be entered in the following 
+                        # cases:
                                         
-                         1) training and pretext task
-                         2) training and sensor classification task
-                         3) validation on pretext task
-                            to compute losses (MSE) on 
-                            validation set in each iteration
-                            then taking the average for each epoch
-                         '''
-                         
+                        #  1) training and pretext task
+                        #  2) training and sensor classification task
+                        #  3) validation on pretext task
+                        #     to compute losses (MSE) on 
+                        #     validation set in each iteration
+                        #     then taking the average for each epoch
+
                          for count,batch in enumerate(loader):
      
                                  
@@ -493,28 +522,6 @@ class Neural_Network_Training_Valid:
                                         
                                         df_iter = manager_object.end_iter(loss.item())
     
-
-                                        # Saving a checkpoint
-                                        
-                                        if actual_iter % self.save_point == 0:
-                                            
-                                            checkpoint = {
-                                                
-                                            'iter': actual_iter,
-                                                
-                                            'model_state':net_1.state_dict(),
-                                                
-                                            'perecentage':run.data_percentage, 
-                                            'pandas':df_iter,'name':name,
-                                            
-                                            'optim_state':
-                                            self.optimization_option['optimizer'].state_dict()
-                                                
-                                                }
-                                                
-                                            torch.save(checkpoint, 
-                                            f'Saved_Iteration/{name}_{actual_iter}_{run.data_percentage}.pth')
-
                                   
                                     if phase == 'valid':
                                         
@@ -533,15 +540,46 @@ class Neural_Network_Training_Valid:
                     if phase == 'valid':
                             
                             if self.mode == 'pretext_task':
-                                     
+                                
                                 # computing average valid loss per epoch
-                                valid_loss_per_epoch.append(sum(valid_loss)/len(valid_loss))
+                                av_loss = sum(valid_loss)/len(valid_loss)
+                                     
+                                if av_loss < loss_start:
+                                    
+                                    loss_start = av_loss
+                                    
+                                    # Saving  only when loss is decreasing
+                                    checkpoint = {
+                                                
+                                            'iter': actual_iter,
+                                                
+                                            'model_state':net_1.state_dict(),
+                                                
+                                            'perecentage':run.data_percentage, 
+                                            'pandas':df_iter,'name':name,
+                                            
+                                            'optim_state':
+                                            self.optimization_option['optimizer'].state_dict()
+                                                
+                                                }
+                                                
+                                    torch.save(checkpoint, 
+                                 f'Saved_Iteration/{name}_{run.data_percentage}.pth')
+                                    
+                                    
+                                
+                                # Appending the result for this epoch
+                                valid_loss_per_epoch.append(av_loss)
                                          
                                 # Clearning the valid_loss list
                                 valid_loss = []
                                          
                                 print('--> Done with Valid Mode \n')
 
+            
+            
+            
+            
             
             if phase == 'train':
 
