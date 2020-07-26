@@ -20,6 +20,10 @@ from Classes_and_Functions.Class_Architecture import Model_Architecture
 
 from Classes_and_Functions.Class_Other_Parameters import Other_Parameters
 
+from Classes_and_Functions.Class_Sensor_Classification import My_Calssifier_Encoder
+
+import Classes_and_Functions.Helper_Functions as hf
+
 
 
 saving_location_dict = {
@@ -44,7 +48,7 @@ for Audio2Vec model
 # Instantiate the architectures object
 model = Model_Architecture()
  
-# Accessing the attibutes architecture for Audio2Vec 
+# Accessing the attributes architecture for Audio2Vec 
 parameters_dic = model.parameters_Audio2Vec
 
 parameters_dic['batch_size'] = 10
@@ -63,7 +67,12 @@ test_choice = {
     
     'Forward_propagation':False,
     
-    'layer_shape':True,
+    'layer_shape':False,
+    
+    'transfer_learning': True,
+    
+    # name of the file to be loaded
+    'saved_results':'Audio2Vec_emb_350_6.pth',
     
     # Scanning all batches 
     
@@ -201,4 +210,43 @@ if test_choice['scan_batches'] == True:
     #     # print(f'--> Labels are: {labels} \n')                         
 
 
-
+if test_choice['transfer_learning'] == True:
+    
+    '''
+    When we load the model state dictionary which contains
+    the learnable weights and biases, we need to 
+    
+    redefine the model again then load these learnable 
+    weights to the model
+    '''
+    
+    # Creating the Neural Network instance
+    net_1 = Audio2Vec(parameters_dic)   
+    
+    # Loading results
+    checkpoint_model = torch.load(test_choice['saved_results'])
+    
+    # Loading trained weights into the model
+    net_1.load_state_dict(checkpoint_model['model_state']) 
+    
+    
+    # Setting the model to training mode
+    net_1.train()
+    
+    # Specifyin the batch size for sensor classification 
+    model.parameters_sensor_classification['batch_size'] = 10
+    
+    # Creating the Neural Network instance for Classification  task
+    classif_model = My_Calssifier_Encoder(model.parameters_sensor_classification)
+    
+    
+    # Transfer learning: initilizaing the encoder of the classifier
+    # to the same weight values of the trained by Audi2Vec
+    classif_model.encoder = net_1.encoder
+    
+    print('----------- Classification Architecture -------------- \n')
+    
+    hf.log_CNN_layers(classif_model)
+    
+    
+    print('********************************************* \n')
