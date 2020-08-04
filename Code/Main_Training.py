@@ -2,14 +2,11 @@
 
 
 
-from math import pow
+
 
 from collections import OrderedDict
 
-
-
-from Classes_and_Functions.Class_Neural_Network_Training_Valid import \
-Neural_Network_Training_Valid
+from Classes_and_Functions.Class_Neural_Network_Training_Valid import Neural_Network_Training_Valid
 
 from Classes_and_Functions.Class_Architecture import Model_Architecture
 
@@ -21,7 +18,11 @@ from Classes_and_Functions.Helper_Functions import plot_results
 
 task = { 'pretext_task': False,
         
-        'sensor_classification': True
+        'sensor_classification': False,
+        
+        'Fix_Emb': True,
+        
+        'Fine_Tune_Emb': False
 
         }
 
@@ -44,7 +45,7 @@ params_to_try = OrderedDict(
 
     # rquired nb of iteration ,
     # it is independent of batch size or nb of epoch
-    nb_of_iter = [ 700 ], 
+    nb_of_iter = [ 6*10**4 ], 
 
     shuffle = [True]
     
@@ -52,8 +53,8 @@ params_to_try = OrderedDict(
 
 
 
-save_point, start_from_iter, resume_training = \
-350 , 0 , False
+start_from_iter, resume_training = 0 , False
+
 
 
 loaded_model = 'Saved_Iteration/Audio2Vec_emb_70000_6.pth'
@@ -71,80 +72,60 @@ if task['pretext_task'] == True:
     
 
     coach = Neural_Network_Training_Valid(param.optimization_option,
-                                    model.parameters_Audio2Vec,
+                                    model,
                                     param.saving_location_dict,params_to_try,
                                     param.frame_width, param.rows_npy,
-                                    param.show_trace,param.model_names,save_point, 
+                                    param.show_trace,param.model_names, 
                                     start_from_iter,resume_training,
                                     loaded_model,mode = 'pretext_task')
 
-    _,accuracy_validation = coach.training()
+    valid_loss_per_epoch,_ = coach.training()
     
     
-    iter_nb = int(params_to_try['nb_of_iter'][0]) 
-    
-    percentage = params_to_try['data_percentage'][0]
-    
-    
-    # param_plot = {
-    
-    # # Enter the name of the saved pth file
-    # 'name_file': f"Audio2Vec_emb_100000_6.pth",
-    
-    # 'title':f"Audio2Vec Using Satble Adam and Scheduler",
-    
-    # 'xlabel':'Iteration Number',
-    
-    # 'ylabel':'Mean Square Error',
-    
-    # 'save':f"Audio2Vec_emb_{iter_nb}_{percentage}.pdf"
-    
-    
-    # }
-
-
-    # plot_results(param_plot,resume_training, start_from_iter ,iter_nb)
+   
     
     
 elif task['sensor_classification'] == True:
     
     coach = Neural_Network_Training_Valid(param.optimization_option,
-                model.parameters_sensor_classification,
+                model,
                 param.saving_location_dict,
                 params_to_try,
                 param.frame_width, param.rows_npy,
-                param.show_trace,param.model_names,save_point, 
+                param.show_trace,param.model_names, 
                 start_from_iter,resume_training,
                 loaded_model,mode = 'sensor_classification')
 
-    valid_loss_per_epoch,accuracy_validation = coach.training()
+    _,accuracy_validation = coach.training()
 
 
-    # iter_nb = int(params_to_try['nb_of_iter'][0])
     
-    # percentage = params_to_try['data_percentage'][0]
+elif task['Fix_Emb'] == True:
+    
+    coach = Neural_Network_Training_Valid(param.optimization_option,
+                model,
+                param.saving_location_dict,
+                params_to_try,
+                param.frame_width, param.rows_npy,
+                param.show_trace,param.model_names, 
+                start_from_iter,resume_training,
+                loaded_model,mode = 'Fix_Emb')
 
-    # param_plot = {
+    _,accuracy_validation = coach.training()
     
     
-    # 'name_file': f"classif_no_emb_60000_6_Stable_Adam.pth",
+elif task['Fine_Tune_Emb'] == True:
     
-    # 'title':f"Task: Sensor Classification Using Adam ",
-    
-    # 'xlabel':'Iteration Number',
-    
-    # 'ylabel':'Cross Entropy',
-    
-    # 'label':'Stable_Adam',
-    
-    # 'save':f"Classif_no_emb_{iter_nb}_{percentage}_Satble_Adam.pdf"
-    
-    
-    # }
+    coach = Neural_Network_Training_Valid(param.optimization_option,
+                model,
+                param.saving_location_dict,
+                params_to_try,
+                param.frame_width, param.rows_npy,
+                param.show_trace,param.model_names, 
+                start_from_iter,resume_training,
+                loaded_model,mode = 'Fine_Tune_Emb')
 
-
-    # plot_results(param_plot,resume_training, start_from_iter ,iter_nb)
-
+    _,accuracy_validation = coach.training()
 
 
 

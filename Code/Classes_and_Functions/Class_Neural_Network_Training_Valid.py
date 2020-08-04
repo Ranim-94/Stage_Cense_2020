@@ -6,8 +6,6 @@ import torch
 
 import math
 
-import os
-
 from Classes_and_Functions.Class_Custome_Pytorch_Dataset import \
 Dataset_SpecSense
 
@@ -27,10 +25,10 @@ from Classes_and_Functions.Class_Sensor_Classification import My_Calssifier_Enco
 class Neural_Network_Training_Valid:
        
        
-       def __init__(self,optimization_option,parameters_neural_network,
+       def __init__(self,optimization_option,model_archi,
                     saving_location_dict,params_to_try,
                     frame_width ,rows_npy,show_trace,model_names,
-                    save_point,start_from_iter,resume_training,
+                    start_from_iter,resume_training,
                     loaded_model,mode):
               
               '''
@@ -39,7 +37,7 @@ class Neural_Network_Training_Valid:
               
               '''
               
-              self.parameters_neural_network = parameters_neural_network
+              self.model_archi = model_archi
               
               self.optimization_option = optimization_option
               
@@ -63,9 +61,7 @@ class Neural_Network_Training_Valid:
               self.loaded_model = loaded_model
               
               self.model_names = model_names
-              
-              self.save_point = save_point
-              
+                           
               self.start_from_iter = start_from_iter
               
               # For dataset to consruct the data
@@ -105,7 +101,8 @@ class Neural_Network_Training_Valid:
                       objective_function = \
                       self.optimization_option['Objective_Function_reconstruction']
                       
-              elif self.mode == 'sensor_classification':
+              elif self.mode == 'sensor_classification' or \
+              self.mode == 'Fix_Emb' or self.mode == 'Fine_Tune_Emb':
                       
                       objective_function = \
                       self.optimization_option['Objective_Function_sensor_classification'] 
@@ -157,68 +154,19 @@ class Neural_Network_Training_Valid:
                   
                   batch_size = run.batch_size,shuffle = run.shuffle) 
                   
-                  # Computing epoch_nb 
-                  self.epoch_nb = len(self.train_loader)// run.batch_size
+                  
+                  # choose what task to do for training
+                  # net_1: the model to be trained for the chosen task
+                  # name: correspondant name for saving the results
+                  net_1,name = self.__choose_task(run)
                       
                   
-                  if self.mode == 'pretext_task':
-                      
-                      '''
-                      Adding a key named batch size:
-                        - this is due to 2 resons:
-                               1) we are testing training for several batch size
-                               2) Audio2Vec implementation in the forward() 
-                                  depends on the batch size
-                               3) so for each batch size choice, we have a different
-                                  model to test
-                      '''
-                      
-                      
-                      self.parameters_neural_network['batch_size'] = run.batch_size
-                      
-                      # Creating the Neural Network instance for pretext task
-                      net_1 = Audio2Vec(self.parameters_neural_network)
-                      
-                      name = self.model_names['embedding']
-                      
-                      
-                      # In case we need to resume training
-                      if self.resume_training == True:
-                          
-                          # Lading the checkpoint
-                          checkpoint = \
-                          torch.load(self.loaded_model)
-                          
-                          net_1.load_state_dict(checkpoint['model_state'])
-                          
-                          # Setting the nework in training mode
-                          net_1.train()
-                          
-                          
-                      
-                      
-                      
-                  elif self.mode == 'sensor_classification':
-                      
-                      
-                      self.parameters_neural_network['batch_size'] = run.batch_size
-
-                      net_1 = My_Calssifier_Encoder(self.parameters_neural_network)
-                      
-                      name = self.model_names['classification_no_embedding']
-                      
-
-               
                   
-                  # Moving the model (the model weights) to the GPU
-                  net_1.to(device)
-                      
-                  
-                  '''
-                    Adapting the optimizer to each neural network instance
-                    created by adding some extra keys value to the optimization
-                    option
-                  '''
+                  # '''
+                  #   Adapting the optimizer to each neural network instance
+                  #   created by adding some extra keys value to the optimization
+                  #   option
+                  # '''
                   self.optimization_option['optimizer'] =  \
                       torch.optim.Adam(net_1.parameters(), lr = math.pow(10,-3),
                                        amsgrad = True)
@@ -226,8 +174,19 @@ class Neural_Network_Training_Valid:
                   # In case we need to resume training
                   if self.resume_training == True:
                       
-                        self.optimization_option['optimizer'].load_state_dict(checkpoint['optim_state'])
-                      
+                        # Lading the checkpoint
+                          checkpoint = \
+                          torch.load(self.loaded_model)
+                          
+                          net_1.load_state_dict(checkpoint['model_state'])
+                          
+                          # Loading state of the dictionary  
+                          self.optimization_option['optimizer'].load_state_dict(checkpoint['optim_state'])
+                  
+                    
+                    
+                  # Moving the model (the model weights) to the GPU
+                  net_1.to(device)
       
                   manager_object.begin_run(run, network = net_1,
                                            loader = self.train_loader)
@@ -250,6 +209,101 @@ class Neural_Network_Training_Valid:
               
               
               return valid_loss_per_epoch,accuracy_validation
+          
+            
+            
+            
+       def __choose_task(self,run):
+           
+           if self.mode == 'pretext_task':
+                      
+                      param_Audio2Vec = self.model_archi.parameters_Audio2Vec
+                      
+                      '''
+                      Adding a key named batch size:
+                        - this is due to 2 resons:
+                               1) we are testing training for several batch size
+                               2) Audio2Vec implementation in the forward() 
+                                  depends on the batch size
+                               3) so for each batch size choice, we have a different
+                                  model to test
+                      '''
+                      
+                      
+                      param_Audio2Vec['batch_size'] = run.batch_size
+                      
+                      # Creating the Neural Network instance for pretext task
+                      net_1 = Audio2Vec(param_Audio2Vec)
+                      
+                      name = self.model_names['embedding']
+                      
+                      
+           elif self.mode == 'sensor_classification':
+                      
+                      
+               param_network = self.model_archi.parameters_sensor_classification
+                      
+               param_network['batch_size'] = run.batch_size
+
+               net_1 = My_Calssifier_Encoder(param_network)
+                      
+               name = self.model_names['classification_no_embedding']
+                      
+                      
+           elif self.mode == 'Fix_Emb' or self.mode == 'Fine_Tune_Emb':
+                      
+               # first we need to create AudioVec instance
+                      
+               param_Audio2Vec = self.model_archi.parameters_Audio2Vec
+                      
+               param_Audio2Vec['batch_size'] = run.batch_size
+                      
+               # Creating the Neural Network instance for pretext task
+               a2v_model = Audio2Vec(param_Audio2Vec)
+                      
+                      
+               # Second Step: Load the trained model
+                      
+               checkpoint_model = \
+               torch.load(f'Saved_Iteration/Model_Audio2Vec_emb_{run.data_percentage}.pth')
+                      
+               # Putting the model into the insntance
+                      
+               # Loading trained weights into the model
+               a2v_model.load_state_dict(checkpoint_model['model_state'])
+                      
+                      
+               # Now instantiate the encoder model for calssifcation
+   
+               param_classif = self.model_archi.parameters_sensor_classification
+                      
+               param_classif['batch_size'] = run.batch_size
+
+               net_1 = My_Calssifier_Encoder(param_classif)
+    
+               # Transfer learning: initilizaing the encoder of the classifier
+               # to the same weight values of the trained by Audi2Vec
+               net_1.encoder= a2v_model.encoder               
+               
+               
+               # Freeze the encoder part in case of Fixed Embedding 
+               if self.mode == 'Fix_Emb':
+                   
+                   for param in net_1.encoder.parameters():
+                       
+                       param.requires_grad == False
+                       
+                       # Create the suitable name for saving the results
+                   name = self.model_names['classification_fixed_embedding']
+                       
+                       
+               else:
+                    
+                    # Create the suitable name for saving the results
+                    name = self.model_names['classification_tuning_embedding']
+                      
+
+           return net_1,name
               
               
        def __start_train_valid(self,count_run,run,manager_object,net_1,
@@ -272,8 +326,12 @@ class Neural_Network_Training_Valid:
             # And also accuracy for sensor classification
             loss_start, best_acc = 10**4 , 0
             
+            # for saving some results during training or validation
+            checkpoint = {}
+            
             # to track losses
-            valid_loss, valid_loss_per_epoch = [], []
+            train_loss,valid_loss, valid_loss_per_epoch,train_loss_epoch = \
+            [], [], [], []
             
             # I just initilize as initial value
             # so it won't give error in the scope of
@@ -303,10 +361,12 @@ class Neural_Network_Training_Valid:
                         
                         loader = self.valid_loader
                         
-                        print(f'We are in valid mode | Nb of Sample_valid:',
+                        print(f'--> We are in valid mode | Nb of Sample_valid:',
                           f'{len(loader)} \n')
                         
-                    if phase == 'valid' and self.mode == 'sensor_classification':
+                    if phase == 'valid' and \
+                    (self.mode == 'sensor_classification' or 
+                     self.mode == 'Fix_Emb' or self.mode == 'Fine_Tune_Emb'):
                         
                         '''
                         In this block, I compute the accuracy on 
@@ -315,6 +375,8 @@ class Neural_Network_Training_Valid:
                         and save results when
                         accuracy increase
                         '''
+                        
+                        print(f'--> We are in {self.mode} mode \n')
             
                         # Computing the prediction for all batches
                         # using the trained model
@@ -328,7 +390,12 @@ class Neural_Network_Training_Valid:
                         preds_correct_test = \
                             get_num_correct(test_pred,test_labels)
                                                                
-                        acc_nb = preds_correct_test/(run.batch_size*len(self.valid_loader))
+                        acc_nb = \
+                        preds_correct_test/(run.batch_size*len(self.valid_loader))
+        
+                        
+                        # Appending the result
+                        accuracy_validation.append(acc_nb)
                         
                         # Saving the model and some results
                         # when accuracy increased
@@ -336,25 +403,33 @@ class Neural_Network_Training_Valid:
                             
                             best_acc = acc_nb
                             
-                            checkpoint = {
-                                                
-                                'iter': actual_iter,
-                                                
-                                'model_state':net_1.state_dict(),
-                                                
-                                'perecentage':run.data_percentage, 
-                                'pandas':df_iter,'name':name,
-                                            
-                                'optim_state':
-                                self.optimization_option['optimizer'].state_dict()
-                                                
-                                            }
-                                                
-                            torch.save(checkpoint, 
+                            checkpoint_models_optim = {
+                                        
+                            'model_state': net_1.state_dict(),
+                                        
+                            'optim_state': self.optimization_option['optimizer'].state_dict()
+
+                                        }
+                            
+                            # Saving the models and the optim state
+                            torch.save(checkpoint_models_optim, 
+                            f'Saved_Iteration/Model_{name}_{run.data_percentage}.pth')
+                            
+                            
+                            # Saving  models only when loss is decreasing
+                            # checkpoint['model_state'] = net_1.state_dict()
+                                    
+                            # checkpoint['optim_state'] = \
+                            # self.optimization_option['optimizer'].state_dict()
+                          
+                        # Saving also the accuracy on validation for 
+                        # plotting later
+                        checkpoint['acc_valid'] = accuracy_validation
+                                
+                        torch.save(checkpoint, 
                                  f'Saved_Iteration/{name}_{run.data_percentage}.pth')
                             
-                        # Appending the result
-                        accuracy_validation.append(acc_nb)
+                        
                                         
                         print(f'Accuracy on validation set is: {acc_nb} \n')
                     
@@ -437,7 +512,8 @@ class Neural_Network_Training_Valid:
                                         '''
                                         manager_object.begin_iter()
                                         
-                                        if self.mode == 'sensor_classification':
+                                        if self.mode == 'sensor_classification' \
+                                        or self.mode == 'Fix_Emb':
                                         
                                             print(f'# Train Sensor Classif | Iteration # {actual_iter}' ,
                                                   f' | run # {count_run}\n')
@@ -454,7 +530,8 @@ class Neural_Network_Training_Valid:
                                         print(f'--> Valid | Iteration: {count} \n')
                                     
 
-                                    if self.mode == 'sensor_classification':
+                                    if self.mode == 'sensor_classification' \
+                                    or self.mode == 'Fix_Emb':
                                         
                                         # Compute the loss
                                         loss = \
@@ -518,60 +595,97 @@ class Neural_Network_Training_Valid:
                                         
                                         # print(f'--> Loss.item is: {loss.item()} \n')
                                         
-                                   
                                         
                                         df_iter = manager_object.end_iter(loss.item())
-    
+                                        
+                                        if self.mode == 'pretext_task':
+                                            # appending training loss
+                                            train_loss.append(loss.item())
+                                            
+                                        
+                                        
+                                        # Saving a checkpoint  
+                                        checkpoint = {
+                                                    
+                                        'iter': actual_iter,
+                                        'pandas':df_iter,          
+     
+                                        'perecentage':run.data_percentage,'name':name
+                                                      }
+        
                                   
                                     if phase == 'valid':
                                         
                                         if self.mode == 'pretext_task':
                                             
                                             valid_loss.append(loss.item())
-       
-  
-                            
-    
-                     # '''
+   
+                     
                      #    In this scope the epoch is finished
                      #    We compute here the average loss per 
                      #    epoch on the validation set for pretext task
-                     # '''                
+                    
+
+                    if phase == 'train':
+                        
+                        if self.mode == 'pretext_task':
+                            
+                            av_train_loss = sum(train_loss)/len(train_loss)
+                            
+                            train_loss_epoch.append(av_train_loss)
+                            
+                            # adding to checkpoint
+                            
+                            
+                            checkpoint['train_loss_mse'] = train_loss_epoch
+                            
+                            
+                            # clearning train loss for next epoch
+                            
+                            train_loss = []
+                            
+                        
                     if phase == 'valid':
                             
                             if self.mode == 'pretext_task':
                                 
                                 # computing average valid loss per epoch
                                 av_loss = sum(valid_loss)/len(valid_loss)
+                                
+                                # Appending the result for this epoch
+                                valid_loss_per_epoch.append(av_loss)
                                      
                                 if av_loss < loss_start:
                                     
                                     loss_start = av_loss
                                     
-                                    # Saving  only when loss is decreasing
-                                    checkpoint = {
-                                                
-                                            'iter': actual_iter,
-                                                
-                                            'model_state':net_1.state_dict(),
-                                                
-                                            'perecentage':run.data_percentage, 
-                                            'pandas':df_iter,'name':name,
-                                            
-                                            'optim_state':
-                                            self.optimization_option['optimizer'].state_dict()
-                                                
-                                                }
-                                                
-                                    torch.save(checkpoint, 
-                                 f'Saved_Iteration/{name}_{run.data_percentage}.pth')
+                                    checkpoint_models_optim = {
+                                        
+                                        'model_state': net_1.state_dict(),
+                                        
+                                        'optim_state': self.optimization_option['optimizer'].state_dict()
+
+                                        }
                                     
+                                    # Saving the models and the optimizer state
+                                    torch.save(checkpoint_models_optim, 
+                                 f'Saved_Iteration/Model_{name}_{run.data_percentage}.pth')
+
+                                    # Saving  models only when loss is decreasing
+                                    # checkpoint['model_state'] = net_1.state_dict()
                                     
+                                    # checkpoint['optim_state'] = \
+                                    # self.optimization_option['optimizer'].state_dict()
+                                                
+                          
+           
                                 
-                                # Appending the result for this epoch
-                                valid_loss_per_epoch.append(av_loss)
-                                         
-                                # Clearning the valid_loss list
+                                checkpoint['valid_loss_mse'] = valid_loss_per_epoch
+                                
+                                torch.save(checkpoint, 
+                                 f'Saved_Iteration/{name}_{run.data_percentage}.pth')                                
+
+                                # Clearning the valid_loss list for next epoch
                                 valid_loss = []
                                          
                                 print('--> Done with Valid Mode \n')

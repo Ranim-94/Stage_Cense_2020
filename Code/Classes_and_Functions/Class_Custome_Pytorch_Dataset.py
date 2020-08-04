@@ -55,17 +55,15 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         self.spectr_balanced,self.id_balanced = self.__balancing_data()
         
         
+        
+        
         # Constructing the data using the balanced data set 
         self.samples , self.samples_id , self.labels  = self.__construct_data()
 
 
         
-                        
- 
-        
     def __getitem__(self,index):
 
-        
         
         # Choosing some sample with some index    
         sample_np, label_np = self.samples[:,:,index], self.labels[:,:,index]
@@ -91,7 +89,8 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
             sample = sample.unsqueeze(0)
             
             
-        elif self.mode == 'sensor_classification':
+        elif self.mode == 'sensor_classification' or \
+        self.mode == 'Fix_Emb' or self.mode == 'Fine_Tune_Emb':
             
             # turning numpy array into pythorch tensors    
             sample = torch.from_numpy(sample_np).float()
@@ -111,7 +110,7 @@ class Dataset_SpecSense(torch.utils.data.Dataset):
         this method will compute the number of samples we have
         '''  
         
-        n_samples = len(self.iteartion_per_npy_file * self.spectr_balanced)
+        n_samples = self.iteartion_per_npy_file * len(self.spectr_balanced)
         
         return n_samples
     
